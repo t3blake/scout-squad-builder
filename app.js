@@ -12,10 +12,13 @@ const memberCatalog = [
 ];
 
 const form = document.getElementById("builderForm");
-const memberContainer = document.getElementById("members");
+const memberRowsEl = document.getElementById("memberRows");
 const promptBox = document.getElementById("installPrompt");
 const presetSelect = document.getElementById("presetSelect");
 const copyPromptButton = document.getElementById("copyPromptButton");
+const addMemberButton = document.getElementById("addMemberButton");
+const newMemberName = document.getElementById("newMemberName");
+const newMemberDescription = document.getElementById("newMemberDescription");
 
 const builtinPresets = [
   {
@@ -56,19 +59,13 @@ const builtinPresets = [
   }
 ];
 
-for (const member of memberCatalog) {
-  const wrapper = document.createElement("label");
-  wrapper.className = "chip";
-
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.name = "members";
-  input.value = member.id;
-  input.checked = true;
-
-  wrapper.append(input, ` ${member.name}`);
-  memberContainer.appendChild(wrapper);
-}
+let memberRowsState = memberCatalog.map((m) => ({
+  id: m.id,
+  name: m.name,
+  description: m.description,
+  include: true,
+  type: "default"
+}));
 
 function slugify(value) {
   return value
@@ -78,13 +75,79 @@ function slugify(value) {
     .replace(/-{2,}/g, "-");
 }
 
-function selectedMembers() {
-  return [...document.querySelectorAll('input[name="members"]:checked')].map((x) => x.value);
-}
-
 function displayNameFor(id) {
   const member = memberCatalog.find((x) => x.id === id);
   return member ? member.name : id;
+}
+
+function renderMemberRows() {
+  memberRowsEl.innerHTML = "";
+
+  for (const row of memberRowsState) {
+    const tr = document.createElement("tr");
+    tr.dataset.memberId = row.id;
+
+    const includeTd = document.createElement("td");
+    const includeSelect = document.createElement("select");
+    includeSelect.className = "include-select";
+    includeSelect.setAttribute("aria-label", `Include ${row.name}`);
+    includeSelect.innerHTML = '<option value="yes">Yes</option><option value="no">No</option>';
+    includeSelect.value = row.include ? "yes" : "no";
+    includeSelect.addEventListener("change", () => {
+      row.include = includeSelect.value === "yes";
+    });
+    includeTd.appendChild(includeSelect);
+
+    const nameTd = document.createElement("td");
+    const nameP = document.createElement("p");
+    nameP.className = "row-name";
+    nameP.textContent = row.name;
+    nameTd.appendChild(nameP);
+
+    const descTd = document.createElement("td");
+    const descP = document.createElement("p");
+    descP.className = "row-desc";
+    descP.textContent = row.description;
+    descTd.appendChild(descP);
+
+    const typeTd = document.createElement("td");
+    const typeTag = document.createElement("span");
+    typeTag.className = "row-type";
+    typeTag.textContent = row.type;
+    typeTd.appendChild(typeTag);
+
+    const actionTd = document.createElement("td");
+    if (row.type === "custom") {
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", () => {
+        memberRowsState = memberRowsState.filter((x) => x.id !== row.id);
+        renderMemberRows();
+      });
+      actionTd.appendChild(removeBtn);
+    } else {
+      actionTd.textContent = "-";
+    }
+
+    tr.append(includeTd, nameTd, descTd, typeTd, actionTd);
+    memberRowsEl.appendChild(tr);
+  }
+}
+
+function createUniqueMemberId(name) {
+  const base = slugify(name || "custom-role") || "custom-role";
+  const existing = new Set(memberRowsState.map((x) => x.id));
+  if (!existing.has(base)) {
+    return base;
+  }
+
+  let i = 2;
+  while (existing.has(`${base}-${i}`)) {
+    i += 1;
+  }
+  return `${base}-${i}`;
 }
 
 function installPromptText(teamRoot) {
@@ -149,7 +212,15 @@ function applyPreset(preset) {
 function buildFiles(values) {
   const squadSlug = slugify(values.squadName);
   const selected = values.members;
-  const memberSet = [...selected, "scribe"];
+  const memberSet = [
+    ...selected,
+    {
+      id: "scribe",
+      name: "Scribe",
+      description: "Silent closeout, receipts, and durable memory merge.",
+      type: "system"
+    }
+  ];
   const ownerName = values.ownerName || "";
   const ownerLine = ownerName ? `- ${ownerName}\n` : "";
   const ownerDescriptor = ownerName ? `${ownerName}'s` : "A";
@@ -163,7 +234,7 @@ function buildFiles(values) {
     name: values.squadName,
     description: `${ownerDescriptor} Scout squad for ${values.focus}`,
     timeoutSeconds: 300,
-    members: memberSet.map((id) => ({ name: id, displayName: displayNameFor(id) }))
+    members: memberSet.map((m) => ({ name: m.id, displayName: m.name }))
   };
 
   const squadLead = `---
@@ -184,10 +255,7 @@ Core directives:
 `;
 
   const teamRows = selected
-    .map((id) => {
-      const m = memberCatalog.find((x) => x.id === id);
-      return `| ${m.name} | ${m.description} |`;
-    })
+    .map((m) => `| ${m.name} | ${m.description} |`)
     .join("\n");
 
   const teamMd = `# ${values.squadName}\n\n## Owner\n\n${ownerLine}- ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n\n## Members\n\n| Member | Responsibility |\n| --- | --- |\n${teamRows}\n| Scribe | Silent closeout, receipts, and durable memory merge. |\n`;
@@ -195,10 +263,7 @@ Core directives:
   const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Any durable team behavior change must be captured in decisions ledger.\n5. Every dispatched run requires Scribe closeout and a run receipt.\n`;
 
   const routingLines = selected
-    .map((id) => {
-      const m = memberCatalog.find((x) => x.id === id);
-      return `- ${m.name}: ${m.description}`;
-    })
+    .map((m) => `- ${m.name}: ${m.description}`)
     .join("\n");
 
   const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\nAlways include Audit Manager + Compliance Officer on customer-facing output.\n`;
@@ -226,8 +291,9 @@ Core directives:
     ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/compliance-officer/audit-trail.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
   };
 
-  for (const id of memberSet) {
-    const memberName = id === "scribe" ? "Scribe" : displayNameFor(id);
+  for (const member of memberSet) {
+    const memberName = member.name;
+    const id = member.id;
 
     files[`.squad/agents/${id}/charter.md`] = `# ${memberName}\n\n## Role\n${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\n## Guardrails\n- Follow .squad/rules.md\n- Stay in role\n- Keep outputs concise and verifiable\n`;
 
@@ -254,7 +320,12 @@ function collectValues() {
     focus: (fd.get("focus") || "").toString().trim(),
     accounts: (fd.get("accounts") || "").toString().trim(),
     tone: (fd.get("tone") || "").toString().trim(),
-    members: selectedMembers()
+    members: memberRowsState.filter((m) => m.include).map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description,
+      type: m.type
+    }))
   };
 }
 
@@ -333,3 +404,27 @@ copyPromptButton.addEventListener("click", async () => {
 });
 
 initializePresets();
+
+addMemberButton.addEventListener("click", () => {
+  const name = newMemberName.value.trim();
+  const description = newMemberDescription.value.trim();
+
+  if (!name || !description) {
+    alert("Add both a role name and responsibility summary.");
+    return;
+  }
+
+  memberRowsState.push({
+    id: createUniqueMemberId(name),
+    name,
+    description,
+    include: true,
+    type: "custom"
+  });
+
+  newMemberName.value = "";
+  newMemberDescription.value = "";
+  renderMemberRows();
+});
+
+renderMemberRows();

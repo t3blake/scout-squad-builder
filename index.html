@@ -76,10 +76,32 @@
           <textarea name="tone" rows="3">Concise, evidence-oriented, challenge assumptions, and avoid unverified claims.</textarea>
         </label>
 
-        <fieldset>
-          <legend>Include members</legend>
-          <div id="members" class="chips"></div>
-        </fieldset>
+        <section class="members-section" aria-labelledby="membersTitle">
+          <h3 id="membersTitle">Member roles</h3>
+          <p class="hint">Why this matters: role coverage keeps work routed clearly (for example, research vs compliance vs planning) and improves output quality. Add your own roles or disable defaults you do not need.</p>
+
+          <div class="table-wrap">
+            <table class="members-table">
+              <caption class="sr-only">Squad members and responsibilities</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Include</th>
+                  <th scope="col">Role name</th>
+                  <th scope="col">Responsibility</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="memberRows"></tbody>
+            </table>
+          </div>
+
+          <div class="add-member">
+            <input id="newMemberName" type="text" placeholder="New role name" aria-label="New role name" />
+            <input id="newMemberDescription" type="text" placeholder="Responsibility summary" aria-label="New role responsibility" />
+            <button type="button" id="addMemberButton" class="mini-btn">Add role</button>
+          </div>
+        </section>
 
         <button type="submit" class="cta">Generate zip</button>
       </form>
