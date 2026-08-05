@@ -213,6 +213,15 @@ legend {
   margin: 0.2rem 0 0.5rem;
 }
 
+.members-warning {
+  margin-top: -0.45rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #f0d7a6;
+  border-radius: 9px;
+  background: #fff9ee;
+  color: #6b4c17;
+}
+
 .skill-section {
   border: 1px solid #d3deed;
   border-radius: 12px;
@@ -261,6 +270,21 @@ legend {
   font-size: 0.92rem;
 }
 
+.member-cell-input,
+.member-type-select {
+  width: 100%;
+  margin-top: 0;
+  padding: 0.46rem 0.52rem;
+  border: 1px solid #c6d4e8;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: #ffffff;
+}
+
+.member-type-select {
+  min-width: 118px;
+}
+
 .members-table .row-type {
   display: inline-block;
   border: 1px solid #c4d6eb;
@@ -269,11 +293,6 @@ legend {
   font-size: 0.78rem;
   color: #1d4b74;
   background: #eef7ff;
-}
-
-.include-select {
-  max-width: 90px;
-  margin-top: 0;
 }
 
 .add-member {

@@ -1,14 +1,15 @@
 const memberCatalog = [
-  { id: "account-manager", name: "Account Manager", description: "Account history, stakeholder maps, and handoff packages." },
-  { id: "operations-manager", name: "Operations Manager", description: "MSX/MSXi hygiene, milestones, and follow-up readiness." },
-  { id: "product-researcher", name: "Product Researcher", description: "Product facts, roadmap checks, and customer-safe framing." },
-  { id: "scrum-master", name: "Scrum Master", description: "Commitments, priorities, and follow-up tracking." },
-  { id: "innovation-lead", name: "Innovation Lead", description: "Demos, labs, prototypes, and technical experiments." },
-  { id: "content-strategist", name: "Content Strategist", description: "Workshops, decks, messaging, and content packaging." },
-  { id: "strategic-advisor", name: "Strategic Advisor", description: "Pressure-tests assumptions, risks, and tradeoffs." },
-  { id: "audit-manager", name: "Audit Manager", description: "Fact-checks claims, sources, and evidence quality." },
-  { id: "compliance-officer", name: "Compliance Officer", description: "Enforces approval boundaries and verify-before-claim." },
-  { id: "skilling-coordinator", name: "Skilling Coordinator", description: "Tracks skilling backlog and Friday topic ideas." }
+  { id: "account-manager", name: "Account Manager", description: "Account history, stakeholder maps, and handoff packages.", type: "suggested" },
+  { id: "operations-manager", name: "Operations Manager", description: "MSX/MSXi hygiene, milestones, and follow-up readiness.", type: "suggested" },
+  { id: "product-researcher", name: "Product Researcher", description: "Product facts, roadmap checks, and customer-safe framing.", type: "suggested" },
+  { id: "scrum-master", name: "Scrum Master", description: "Commitments, priorities, and follow-up tracking.", type: "suggested" },
+  { id: "innovation-lead", name: "Innovation Lead", description: "Demos, labs, prototypes, and technical experiments.", type: "suggested" },
+  { id: "content-strategist", name: "Content Strategist", description: "Workshops, decks, messaging, and content packaging.", type: "suggested" },
+  { id: "strategic-advisor", name: "Strategic Advisor", description: "Pressure-tests assumptions, risks, and tradeoffs.", type: "suggested" },
+  { id: "audit-manager", name: "Audit Manager", description: "Fact-checks claims, sources, and evidence quality.", type: "suggested" },
+  { id: "compliance-officer", name: "Compliance Officer", description: "Enforces approval boundaries and verify-before-claim.", type: "suggested" },
+  { id: "skilling-coordinator", name: "Skilling Coordinator", description: "Tracks skilling backlog and Friday topic ideas.", type: "suggested" },
+  { id: "scribe", name: "Scribe", description: "Silent closeout, receipts, and durable memory merge.", type: "required" }
 ];
 
 const form = document.getElementById("builderForm");
@@ -59,11 +60,13 @@ const builtinPresets = [
   }
 ];
 
+const allowedMemberTypes = ["required", "suggested", "custom"];
+
 let memberRowsState = memberCatalog.map((m) => ({
   id: m.id,
   name: m.name,
   description: m.description,
-  type: "default"
+  type: m.type
 }));
 
 let activePresets = [];
@@ -162,6 +165,22 @@ function applyPreset(preset) {
   form.elements.tone.value = preset.tone;
 }
 
+function confirmRemoval(row) {
+  if (row.type === "required") {
+    return window.confirm(
+      `Remove required role "${row.name}"? This may reduce orchestration quality and guardrails.`
+    );
+  }
+
+  if (row.type === "suggested") {
+    return window.confirm(
+      `Remove suggested role "${row.name}"? Recommended coverage may be reduced.`
+    );
+  }
+
+  return true;
+}
+
 function renderMemberRows() {
   memberRowsEl.innerHTML = "";
 
@@ -170,22 +189,47 @@ function renderMemberRows() {
     tr.dataset.memberId = row.id;
 
     const nameTd = document.createElement("td");
-    const nameP = document.createElement("p");
-    nameP.className = "row-name";
-    nameP.textContent = row.name;
-    nameTd.appendChild(nameP);
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.className = "member-cell-input";
+    nameInput.value = row.name;
+    nameInput.setAttribute("aria-label", `Role name for ${row.id}`);
+    nameInput.addEventListener("input", () => {
+      row.name = nameInput.value.trimStart();
+      refreshPromptPreview();
+    });
+    nameTd.appendChild(nameInput);
 
     const descTd = document.createElement("td");
-    const descP = document.createElement("p");
-    descP.className = "row-desc";
-    descP.textContent = row.description;
-    descTd.appendChild(descP);
+    const descInput = document.createElement("input");
+    descInput.type = "text";
+    descInput.className = "member-cell-input";
+    descInput.value = row.description;
+    descInput.setAttribute("aria-label", `Responsibility for ${row.name}`);
+    descInput.addEventListener("input", () => {
+      row.description = descInput.value.trimStart();
+      refreshPromptPreview();
+    });
+    descTd.appendChild(descInput);
 
     const typeTd = document.createElement("td");
-    const typeTag = document.createElement("span");
-    typeTag.className = "row-type";
-    typeTag.textContent = row.type;
-    typeTd.appendChild(typeTag);
+    const typeSelect = document.createElement("select");
+    typeSelect.className = "member-type-select";
+    typeSelect.setAttribute("aria-label", `Type for ${row.name}`);
+
+    for (const optionValue of allowedMemberTypes) {
+      const option = document.createElement("option");
+      option.value = optionValue;
+      option.textContent = optionValue;
+      typeSelect.appendChild(option);
+    }
+
+    typeSelect.value = allowedMemberTypes.includes(row.type) ? row.type : "custom";
+    typeSelect.addEventListener("change", () => {
+      row.type = typeSelect.value;
+      refreshPromptPreview();
+    });
+    typeTd.appendChild(typeSelect);
 
     const actionTd = document.createElement("td");
     const removeBtn = document.createElement("button");
@@ -195,6 +239,10 @@ function renderMemberRows() {
     removeBtn.setAttribute("aria-label", `Remove ${row.name}`);
     removeBtn.title = `Remove ${row.name}`;
     removeBtn.addEventListener("click", () => {
+      if (!confirmRemoval(row)) {
+        return;
+      }
+
       memberRowsState = memberRowsState.filter((x) => x.id !== row.id);
       renderMemberRows();
       refreshPromptPreview();
@@ -212,6 +260,15 @@ function buildSetTeamRootScript() {
 
 function collectValues() {
   const fd = new FormData(form);
+  const members = memberRowsState
+    .map((m) => ({
+      id: (m.id || "").trim(),
+      name: (m.name || "").trim(),
+      description: (m.description || "").trim(),
+      type: allowedMemberTypes.includes(m.type) ? m.type : "custom"
+    }))
+    .filter((m) => m.id && m.name && m.description);
+
   return {
     squadName: (fd.get("squadName") || "").toString().trim(),
     ownerName: (fd.get("ownerName") || "").toString().trim(),
@@ -220,12 +277,7 @@ function collectValues() {
     accounts: (fd.get("accounts") || "").toString().trim(),
     tone: (fd.get("tone") || "").toString().trim(),
     skillName: (fd.get("skillName") || "").toString().trim(),
-    members: memberRowsState.map((m) => ({
-      id: m.id,
-      name: m.name,
-      description: m.description,
-      type: m.type
-    }))
+    members
   };
 }
 
@@ -238,15 +290,7 @@ function refreshPromptPreview() {
 function buildFiles(values) {
   const squadSlug = slugify(values.squadName);
   const selected = values.members;
-  const memberSet = [
-    ...selected,
-    {
-      id: "scribe",
-      name: "Scribe",
-      description: "Silent closeout, receipts, and durable memory merge.",
-      type: "system"
-    }
-  ];
+  const hasScribe = selected.some((m) => m.id === "scribe");
 
   const ownerName = values.ownerName || "";
   const ownerLine = ownerName ? `- ${ownerName}\n` : "";
@@ -261,8 +305,12 @@ function buildFiles(values) {
     name: values.squadName,
     description: `${ownerDescriptor} Scout squad for ${values.focus}`,
     timeoutSeconds: 300,
-    members: memberSet.map((m) => ({ name: m.id, displayName: m.name }))
+    members: selected.map((m) => ({ name: m.id, displayName: m.name }))
   };
+
+  const scribeDirective = hasScribe
+    ? "- Trigger Scribe closeout with run receipt after each dispatched run."
+    : "- Run closeout and verification explicitly in each response (Scribe removed).";
 
   const squadLead = `---
 name: Squad Lead
@@ -278,26 +326,26 @@ Core directives:
 - Enforce evidence tiers and verify-before-claim from .squad/rules.md.
 - Treat systems-of-record actions as draft-only unless user explicitly performs final submit.
 - For multi-domain requests, fan out in parallel and return one concise synthesis.
-- Trigger Scribe closeout with run receipt after each dispatched run.
+${scribeDirective}
 `;
 
   const teamRows = selected
-    .map((m) => `| ${m.name} | ${m.description} |`)
+    .map((m) => `| ${m.name} | ${m.description} | ${m.type} |`)
     .join("\n");
 
-  const teamMd = `# ${values.squadName}\n\n## Owner\n\n${ownerLine}- ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n\n## Members\n\n| Member | Responsibility |\n| --- | --- |\n${teamRows}\n| Scribe | Silent closeout, receipts, and durable memory merge. |\n`;
+  const teamMd = `# ${values.squadName}\n\n## Owner\n\n${ownerLine}- ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n\n## Members\n\n| Member | Responsibility | Type |\n| --- | --- | --- |\n${teamRows}\n`;
 
-  const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Any durable team behavior change must be captured in decisions ledger.\n5. Every dispatched run requires Scribe closeout and a run receipt.\n`;
+  const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Any durable team behavior change must be captured in decisions ledger.\n5. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
 
   const routingLines = selected
-    .map((m) => `- ${m.name}: ${m.description}`)
+    .map((m) => `- ${m.name} (${m.type}): ${m.description}`)
     .join("\n");
 
-  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\nAlways include Audit Manager + Compliance Officer on customer-facing output.\n`;
+  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n`;
 
   const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Zip Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
 
-  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n- https://learn.microsoft.com/microsoft-365/copilot/\n- https://learn.microsoft.com/microsoft-copilot-studio/\n- https://learn.microsoft.com/\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. Set TEAM_ROOT references using scripts/set-team-root.ps1 if needed.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
+  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n- https://learn.microsoft.com/search/?terms=Microsoft%20Scout\n- https://learn.microsoft.com/search/?terms=Scout%20squad\n- https://devblogs.microsoft.com/?s=Microsoft+Scout\n- https://techcommunity.microsoft.com/search?q=Microsoft%20Scout\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. Set TEAM_ROOT references using scripts/set-team-root.ps1 if needed.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
 
   const files = {
     "manifest.json": JSON.stringify(manifest, null, 2),
@@ -318,7 +366,7 @@ Core directives:
     ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/compliance-officer/audit-trail.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
   };
 
-  for (const member of memberSet) {
+  for (const member of selected) {
     const memberName = member.name;
     const id = member.id;
 
@@ -347,6 +395,12 @@ form.addEventListener("submit", async (event) => {
 
   if (!values.members.length) {
     alert("Add at least one member role.");
+    return;
+  }
+
+  const nonScribeMembers = values.members.filter((m) => m.id !== "scribe");
+  if (!nonScribeMembers.length) {
+    alert("Keep at least one non-Scribe member role for useful routing coverage.");
     return;
   }
 
