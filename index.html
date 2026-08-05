@@ -11,46 +11,53 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#builderForm">Skip to builder form</a>
   <main class="shell">
     <header class="hero">
-      <p class="eyebrow">Microsoft Scout Toolkit</p>
-      <h1>Squad Zip Builder</h1>
-      <p class="sub">Collect a few role details, then export a full squad package your CSAs can extract and point Scout to.</p>
-      <p class="disclaimer">This is a personal/community scaffold generator. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.</p>
+      <p class="eyebrow">Scout Squad Builder</p>
+      <h1>Build a reusable squad package in minutes</h1>
+      <p class="sub">Pick a starter example, tune a few details, and generate a zip you can extract and feed into Scout.</p>
+      <p class="disclaimer">Community project. Not official guidance.</p>
+      <div class="hero-chips" aria-label="Key outcomes">
+        <span class="hero-chip">Fast onboarding</span>
+        <span class="hero-chip">Guardrails included</span>
+        <span class="hero-chip">Flexible templates</span>
+      </div>
     </header>
 
-    <section class="panel explainer" aria-labelledby="overviewTitle">
-      <h2 id="overviewTitle">What this does</h2>
-      <p>Scout squads help you organize specialist agents with clear boundaries, memory patterns, and compliance guardrails. This builder gives you a ready-to-extract squad package plus a copy/paste Scout import prompt.</p>
-      <h3>Why teams use it</h3>
-      <ul>
-        <li>Faster onboarding for common work patterns.</li>
-        <li>Consistent guardrails from day one.</li>
-        <li>Flexible templates you can adapt without editing code.</li>
-      </ul>
-      <h3>Official docs (recommended)</h3>
-      <ul>
-        <li><a href="https://learn.microsoft.com/microsoft-365/copilot/" target="_blank" rel="noopener noreferrer">Microsoft 365 Copilot docs</a></li>
-        <li><a href="https://learn.microsoft.com/microsoft-copilot-studio/" target="_blank" rel="noopener noreferrer">Microsoft Copilot Studio docs</a></li>
-        <li><a href="https://learn.microsoft.com/" target="_blank" rel="noopener noreferrer">Microsoft Learn hub</a></li>
-      </ul>
+    <section class="quickflow" aria-labelledby="quickflowTitle">
+      <h2 id="quickflowTitle">How it works</h2>
+      <div class="flow-grid">
+        <article class="flow-card">
+          <h3>1. Choose a use case</h3>
+          <p>Select a starter profile like IT Support Technician or Knowledge Worker.</p>
+        </article>
+        <article class="flow-card">
+          <h3>2. Customize</h3>
+          <p>Adjust names, focus, tone, and member set for your team.</p>
+        </article>
+        <article class="flow-card">
+          <h3>3. Generate + import</h3>
+          <p>Download zip, extract, and paste the generated prompt into Scout.</p>
+        </article>
+      </div>
     </section>
 
     <section class="grid">
       <form id="builderForm" class="panel">
-        <h2>Squad Details</h2>
+        <h2>Configure your squad</h2>
 
         <label>Starter example
           <select id="presetSelect" name="presetSelect" aria-describedby="presetHelp"></select>
         </label>
-        <p id="presetHelp" class="hint">Examples are loaded from presets/presets.json. Add a new preset object there and it will appear automatically.</p>
+        <p id="presetHelp" class="hint">Presets are loaded from presets/presets.json so you can add new options without changing UI code.</p>
 
         <label>Squad name
           <input name="squadName" required value="Copilot CSA Support Squad" />
         </label>
 
         <label>Owner name
-          <input name="ownerName" required value="Blake Erwin" />
+          <input name="ownerName" required value="Your Name" />
         </label>
 
         <label>Owner role
@@ -78,17 +85,26 @@
       </form>
 
       <aside class="panel preview">
-        <h2>Scout Install Prompt</h2>
-        <p>Copy this into Scout after extracting the zip.</p>
+        <h2>Install in Scout</h2>
+        <p class="hint">After extracting the zip, paste this into your Scout skill flow.</p>
         <textarea id="installPrompt" readonly rows="14"></textarea>
         <button type="button" id="copyPromptButton" class="cta cta-secondary">Copy prompt</button>
-        <h3>Import steps</h3>
+        <h3>Quick steps</h3>
         <ol>
           <li>Generate and extract the zip.</li>
           <li>If needed, run <code>scripts/set-team-root.ps1</code> with your local path.</li>
           <li>Paste the prompt into your Scout skill flow.</li>
-          <li>Start with Squad Lead and validate output against official docs.</li>
+          <li>Start with Squad Lead and validate behavior against official docs.</li>
         </ol>
+
+        <details class="docs-panel">
+          <summary>Official docs</summary>
+          <ul>
+            <li><a href="https://learn.microsoft.com/microsoft-365/copilot/" target="_blank" rel="noopener noreferrer">Microsoft 365 Copilot docs</a></li>
+            <li><a href="https://learn.microsoft.com/microsoft-copilot-studio/" target="_blank" rel="noopener noreferrer">Microsoft Copilot Studio docs</a></li>
+            <li><a href="https://learn.microsoft.com/" target="_blank" rel="noopener noreferrer">Microsoft Learn hub</a></li>
+          </ul>
+        </details>
       </aside>
     </section>
   </main>
