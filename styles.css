@@ -116,80 +116,52 @@ body {
   background: #f1fbff;
 }
 
-.quickflow {
-  margin-top: 1rem;
-}
-
-.quickflow h2 {
-  margin: 0 0 0.55rem;
-}
-
-.why-squads {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: linear-gradient(180deg, #fcfdff 0%, #f6fbff 100%);
-  box-shadow: 0 8px 22px rgba(17, 33, 45, 0.05);
-}
-
-.why-squads-header h2 {
-  margin: 0;
-}
-
-.why-squads-header p {
-  margin: 0.45rem 0 0;
-  max-width: 72ch;
-  color: var(--ink-soft);
-}
-
-.why-squads-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+.learn-more {
   margin-top: 0.9rem;
 }
 
-.why-card {
-  border: 1px solid #dce6f2;
+.learn-more-panel {
+  border: 1px solid #d7dfeb;
   border-radius: 14px;
-  background: #ffffff;
-  padding: 0.85rem;
+  background: #f9fcff;
+  padding: 0.55rem 0.7rem;
 }
 
-.why-card h3 {
-  margin: 0;
-  font-size: 1rem;
+.learn-more-panel summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #1d4667;
 }
 
-.why-card p {
-  margin: 0.45rem 0 0;
+.learn-intro {
+  margin: 0.65rem 0 0;
   color: var(--ink-soft);
   font-size: 0.93rem;
 }
 
-.flow-grid {
+.learn-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
 }
 
-.flow-card {
-  border: 1px solid var(--line);
-  border-radius: 14px;
+.learn-card {
+  border: 1px solid #dce6f2;
+  border-radius: 12px;
   background: #ffffff;
-  padding: 0.8rem;
+  padding: 0.75rem;
 }
 
-.flow-card h3 {
+.learn-card h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.97rem;
 }
 
-.flow-card p {
-  margin: 0.35rem 0 0;
+.learn-card p {
+  margin: 0.4rem 0 0;
   color: var(--ink-soft);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .grid {
@@ -486,11 +458,7 @@ code {
 }
 
 @media (max-width: 860px) {
-  .flow-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .why-squads-grid {
+  .learn-grid {
     grid-template-columns: 1fr;
   }
 
