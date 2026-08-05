@@ -45,3 +45,21 @@ The generated zip includes:
 
 - This is intentionally static and client-side only.
 - No user data leaves the browser.
+
+## User Testing Gate (Continue vs Stop)
+
+Use this quick gate before adding more hardening work:
+
+1. Run 5 realistic user tasks (preset select, role edits, add/remove role, generate zip, copy prompt).
+2. Log each issue with severity:
+    - Critical: blocks completion or generates broken output.
+    - Major: user confusion with repeated failures.
+    - Minor: cosmetic or low-friction issue.
+3. Continue hardening only when one of these is true:
+    - At least 1 critical issue exists.
+    - At least 2 major issues repeat across testers.
+    - A fix measurably reduces completion time or error rate.
+4. Stop hardening and run broader user testing when:
+    - 0 critical issues.
+    - Fewer than 2 repeat major issues.
+    - No clearly measurable UX gain from another change.

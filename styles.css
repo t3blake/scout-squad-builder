@@ -285,6 +285,34 @@ legend {
   min-width: 118px;
 }
 
+.member-input-error {
+  border-color: #cc2f2f;
+  background: #fff7f7;
+}
+
+.row-error {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #a32525;
+  font-weight: 600;
+}
+
+.member-validation-message {
+  display: none;
+  margin: 0 0 0.65rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #efb8b8;
+  border-radius: 9px;
+  background: #fff4f4;
+  color: #8f1d1d;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.member-validation-message.visible {
+  display: block;
+}
+
 .members-table .row-type {
   display: inline-block;
   border: 1px solid #c4d6eb;
