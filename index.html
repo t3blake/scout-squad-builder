@@ -76,6 +76,16 @@
           <textarea name="tone" rows="3">Concise, evidence-oriented, challenge assumptions, and avoid unverified claims.</textarea>
         </label>
 
+        <section class="skill-section" aria-labelledby="skillWrapperTitle">
+          <h3 id="skillWrapperTitle">Scout skill wrapper</h3>
+          <p class="hint">Why this is useful: a named Scout skill gives users one stable command path (similar to a /squad pattern), so they do not have to remember setup details every session.</p>
+
+          <label>Skill name
+            <input name="skillName" value="squad" aria-describedby="skillNameHelp" />
+          </label>
+          <p id="skillNameHelp" class="hint">Example calls: <code>/squad</code> or <code>/it-squad</code>. Keep it short and memorable.</p>
+        </section>
+
         <section class="members-section" aria-labelledby="membersTitle">
           <h3 id="membersTitle">Member roles</h3>
           <p class="hint">Why this matters: role coverage keeps work routed clearly (for example, research vs compliance vs planning) and improves output quality. Add your own roles or disable defaults you do not need.</p>
@@ -85,7 +95,6 @@
               <caption class="sr-only">Squad members and responsibilities</caption>
               <thead>
                 <tr>
-                  <th scope="col">Include</th>
                   <th scope="col">Role name</th>
                   <th scope="col">Responsibility</th>
                   <th scope="col">Type</th>
@@ -99,7 +108,7 @@
           <div class="add-member">
             <input id="newMemberName" type="text" placeholder="New role name" aria-label="New role name" />
             <input id="newMemberDescription" type="text" placeholder="Responsibility summary" aria-label="New role responsibility" />
-            <button type="button" id="addMemberButton" class="mini-btn">Add role</button>
+            <button type="button" id="addMemberButton" class="mini-btn">+ Add role</button>
           </div>
         </section>
 

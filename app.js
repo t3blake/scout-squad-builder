@@ -63,9 +63,10 @@ let memberRowsState = memberCatalog.map((m) => ({
   id: m.id,
   name: m.name,
   description: m.description,
-  include: true,
   type: "default"
 }));
+
+let activePresets = [];
 
 function slugify(value) {
   return value
@@ -73,67 +74,6 @@ function slugify(value) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-{2,}/g, "-");
-}
-
-function displayNameFor(id) {
-  const member = memberCatalog.find((x) => x.id === id);
-  return member ? member.name : id;
-}
-
-function renderMemberRows() {
-  memberRowsEl.innerHTML = "";
-
-  for (const row of memberRowsState) {
-    const tr = document.createElement("tr");
-    tr.dataset.memberId = row.id;
-
-    const includeTd = document.createElement("td");
-    const includeSelect = document.createElement("select");
-    includeSelect.className = "include-select";
-    includeSelect.setAttribute("aria-label", `Include ${row.name}`);
-    includeSelect.innerHTML = '<option value="yes">Yes</option><option value="no">No</option>';
-    includeSelect.value = row.include ? "yes" : "no";
-    includeSelect.addEventListener("change", () => {
-      row.include = includeSelect.value === "yes";
-    });
-    includeTd.appendChild(includeSelect);
-
-    const nameTd = document.createElement("td");
-    const nameP = document.createElement("p");
-    nameP.className = "row-name";
-    nameP.textContent = row.name;
-    nameTd.appendChild(nameP);
-
-    const descTd = document.createElement("td");
-    const descP = document.createElement("p");
-    descP.className = "row-desc";
-    descP.textContent = row.description;
-    descTd.appendChild(descP);
-
-    const typeTd = document.createElement("td");
-    const typeTag = document.createElement("span");
-    typeTag.className = "row-type";
-    typeTag.textContent = row.type;
-    typeTd.appendChild(typeTag);
-
-    const actionTd = document.createElement("td");
-    if (row.type === "custom") {
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "remove-btn";
-      removeBtn.textContent = "Remove";
-      removeBtn.addEventListener("click", () => {
-        memberRowsState = memberRowsState.filter((x) => x.id !== row.id);
-        renderMemberRows();
-      });
-      actionTd.appendChild(removeBtn);
-    } else {
-      actionTd.textContent = "-";
-    }
-
-    tr.append(includeTd, nameTd, descTd, typeTd, actionTd);
-    memberRowsEl.appendChild(tr);
-  }
 }
 
 function createUniqueMemberId(name) {
@@ -150,12 +90,25 @@ function createUniqueMemberId(name) {
   return `${base}-${i}`;
 }
 
-function installPromptText(teamRoot) {
+function normalizedSkillName(input) {
+  const raw = (input || "").toString().trim();
+  const clean = raw.replace(/^\/+/, "").trim();
+  return clean || "squad";
+}
+
+function installPromptText(teamRoot, skillNameInput) {
+  const skillName = normalizedSkillName(skillNameInput);
+  const slashSkill = `/${skillName}`;
+
   return [
     `Install this squad from ${teamRoot}.`,
     "Use manifest.json and .github/agents/squad.agent.md as the coordinator source.",
     "Install standalone-agents/*.agent.md as user-level custom agents.",
     "Use the local folder as TEAM_ROOT.",
+    "Create a reusable Scout skill wrapper for this squad.",
+    `Name the skill ${slashSkill}.`,
+    `Skill purpose: when a user calls ${slashSkill}, load this squad context and route work through Squad Lead.`,
+    `How to use: run ${slashSkill} with a task or question; Squad Lead should orchestrate specialists and return one consolidated response.`,
     "Then route work through Squad Lead and return one consolidated response."
   ].join("\n");
 }
@@ -209,6 +162,79 @@ function applyPreset(preset) {
   form.elements.tone.value = preset.tone;
 }
 
+function renderMemberRows() {
+  memberRowsEl.innerHTML = "";
+
+  for (const row of memberRowsState) {
+    const tr = document.createElement("tr");
+    tr.dataset.memberId = row.id;
+
+    const nameTd = document.createElement("td");
+    const nameP = document.createElement("p");
+    nameP.className = "row-name";
+    nameP.textContent = row.name;
+    nameTd.appendChild(nameP);
+
+    const descTd = document.createElement("td");
+    const descP = document.createElement("p");
+    descP.className = "row-desc";
+    descP.textContent = row.description;
+    descTd.appendChild(descP);
+
+    const typeTd = document.createElement("td");
+    const typeTag = document.createElement("span");
+    typeTag.className = "row-type";
+    typeTag.textContent = row.type;
+    typeTd.appendChild(typeTag);
+
+    const actionTd = document.createElement("td");
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "remove-btn";
+    removeBtn.textContent = "X";
+    removeBtn.setAttribute("aria-label", `Remove ${row.name}`);
+    removeBtn.title = `Remove ${row.name}`;
+    removeBtn.addEventListener("click", () => {
+      memberRowsState = memberRowsState.filter((x) => x.id !== row.id);
+      renderMemberRows();
+      refreshPromptPreview();
+    });
+
+    actionTd.appendChild(removeBtn);
+    tr.append(nameTd, descTd, typeTd, actionTd);
+    memberRowsEl.appendChild(tr);
+  }
+}
+
+function buildSetTeamRootScript() {
+  return `param(\n    [Parameter(Mandatory = $true)]\n    [string]$TeamRoot\n)\n\n$repoRoot = Split-Path -Parent $PSScriptRoot\n$files = @(\n    (Join-Path $repoRoot ".github/agents/squad.agent.md")\n) + (Get-ChildItem (Join-Path $repoRoot "standalone-agents") -Filter "*.agent.md" | ForEach-Object { $_.FullName })\n\nforeach ($file in $files) {\n    $content = Get-Content -Raw -Path $file\n    $updated = $content -replace "<SET_TEAM_ROOT_TO_LOCAL_FOLDER>", $TeamRoot\n    if ($updated -ne $content) {\n        Set-Content -Path $file -Value $updated -NoNewline\n        Write-Host "Updated: $file"\n    }\n}\n\nWrite-Host "Done. Restart Scout/Copilot CLI after install."\n`;
+}
+
+function collectValues() {
+  const fd = new FormData(form);
+  return {
+    squadName: (fd.get("squadName") || "").toString().trim(),
+    ownerName: (fd.get("ownerName") || "").toString().trim(),
+    ownerRole: (fd.get("ownerRole") || "").toString().trim(),
+    focus: (fd.get("focus") || "").toString().trim(),
+    accounts: (fd.get("accounts") || "").toString().trim(),
+    tone: (fd.get("tone") || "").toString().trim(),
+    skillName: (fd.get("skillName") || "").toString().trim(),
+    members: memberRowsState.map((m) => ({
+      id: m.id,
+      name: m.name,
+      description: m.description,
+      type: m.type
+    }))
+  };
+}
+
+function refreshPromptPreview() {
+  const values = collectValues();
+  const folder = `C:\\Path\\To\\${values.squadName || "Squad"}`;
+  promptBox.value = installPromptText(folder, values.skillName);
+}
+
 function buildFiles(values) {
   const squadSlug = slugify(values.squadName);
   const selected = values.members;
@@ -221,6 +247,7 @@ function buildFiles(values) {
       type: "system"
     }
   ];
+
   const ownerName = values.ownerName || "";
   const ownerLine = ownerName ? `- ${ownerName}\n` : "";
   const ownerDescriptor = ownerName ? `${ownerName}'s` : "A";
@@ -270,7 +297,7 @@ Core directives:
 
   const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Zip Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
 
-  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n- https://learn.microsoft.com/microsoft-365/copilot/\n- https://learn.microsoft.com/microsoft-copilot-studio/\n- https://learn.microsoft.com/\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. Set TEAM_ROOT references using scripts/set-team-root.ps1 if needed.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder")}\n\`\`\`\n`;
+  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n- https://learn.microsoft.com/microsoft-365/copilot/\n- https://learn.microsoft.com/microsoft-copilot-studio/\n- https://learn.microsoft.com/\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. Set TEAM_ROOT references using scripts/set-team-root.ps1 if needed.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
 
   const files = {
     "manifest.json": JSON.stringify(manifest, null, 2),
@@ -307,34 +334,6 @@ Core directives:
   return { files, squadSlug };
 }
 
-function buildSetTeamRootScript() {
-  return `param(\n    [Parameter(Mandatory = $true)]\n    [string]$TeamRoot\n)\n\n$repoRoot = Split-Path -Parent $PSScriptRoot\n$files = @(\n    (Join-Path $repoRoot ".github/agents/squad.agent.md")\n) + (Get-ChildItem (Join-Path $repoRoot "standalone-agents") -Filter "*.agent.md" | ForEach-Object { $_.FullName })\n\nforeach ($file in $files) {\n    $content = Get-Content -Raw -Path $file\n    $updated = $content -replace "<SET_TEAM_ROOT_TO_LOCAL_FOLDER>", $TeamRoot\n    if ($updated -ne $content) {\n        Set-Content -Path $file -Value $updated -NoNewline\n        Write-Host "Updated: $file"\n    }\n}\n\nWrite-Host "Done. Restart Scout/Copilot CLI after install."\n`;
-}
-
-function collectValues() {
-  const fd = new FormData(form);
-  return {
-    squadName: (fd.get("squadName") || "").toString().trim(),
-    ownerName: (fd.get("ownerName") || "").toString().trim(),
-    ownerRole: (fd.get("ownerRole") || "").toString().trim(),
-    focus: (fd.get("focus") || "").toString().trim(),
-    accounts: (fd.get("accounts") || "").toString().trim(),
-    tone: (fd.get("tone") || "").toString().trim(),
-    members: memberRowsState.filter((m) => m.include).map((m) => ({
-      id: m.id,
-      name: m.name,
-      description: m.description,
-      type: m.type
-    }))
-  };
-}
-
-function refreshPromptPreview() {
-  const values = collectValues();
-  const folder = `C:\\Path\\To\\${values.squadName || "Squad"}`;
-  promptBox.value = installPromptText(folder);
-}
-
 form.addEventListener("input", refreshPromptPreview);
 
 form.addEventListener("submit", async (event) => {
@@ -347,7 +346,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   if (!values.members.length) {
-    alert("Select at least one member.");
+    alert("Add at least one member role.");
     return;
   }
 
@@ -366,21 +365,6 @@ form.addEventListener("submit", async (event) => {
   a.click();
   URL.revokeObjectURL(url);
 });
-
-refreshPromptPreview();
-
-let activePresets = [];
-
-async function initializePresets() {
-  activePresets = await loadPresets();
-  renderPresetOptions(activePresets);
-
-  if (activePresets.length) {
-    applyPreset(activePresets[0]);
-  }
-
-  refreshPromptPreview();
-}
 
 presetSelect.addEventListener("change", () => {
   const selected = activePresets.find((x) => x.id === presetSelect.value);
@@ -403,8 +387,6 @@ copyPromptButton.addEventListener("click", async () => {
   }
 });
 
-initializePresets();
-
 addMemberButton.addEventListener("click", () => {
   const name = newMemberName.value.trim();
   const description = newMemberDescription.value.trim();
@@ -418,13 +400,25 @@ addMemberButton.addEventListener("click", () => {
     id: createUniqueMemberId(name),
     name,
     description,
-    include: true,
     type: "custom"
   });
 
   newMemberName.value = "";
   newMemberDescription.value = "";
   renderMemberRows();
+  refreshPromptPreview();
 });
 
-renderMemberRows();
+async function initializePresets() {
+  activePresets = await loadPresets();
+  renderPresetOptions(activePresets);
+
+  if (activePresets.length) {
+    applyPreset(activePresets[0]);
+  }
+
+  renderMemberRows();
+  refreshPromptPreview();
+}
+
+initializePresets();
