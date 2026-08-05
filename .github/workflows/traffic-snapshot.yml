@@ -1,0 +1,101 @@
+name: Snapshot GitHub Traffic
+
+on:
+  schedule:
+    - cron: "18 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch traffic metrics
+        id: fetch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            async function safeCall(fn, fallback) {
+              try {
+                return await fn();
+              } catch (err) {
+                core.warning(err.message);
+                return fallback;
+              }
+            }
+
+            const [views, clones, referrers, paths] = await Promise.all([
+              safeCall(
+                () => github.rest.repos.getViews({ owner, repo, per: 'day' }),
+                { data: { count: 0, uniques: 0, views: [] } }
+              ),
+              safeCall(
+                () => github.rest.repos.getClones({ owner, repo, per: 'day' }),
+                { data: { count: 0, uniques: 0, clones: [] } }
+              ),
+              safeCall(
+                () => github.rest.repos.getTopReferrers({ owner, repo }),
+                { data: [] }
+              ),
+              safeCall(
+                () => github.rest.repos.getTopPaths({ owner, repo }),
+                { data: [] }
+              )
+            ]);
+
+            const payload = {
+              date: new Date().toISOString().slice(0, 10),
+              capturedAt: new Date().toISOString(),
+              views: views.data,
+              clones: clones.data,
+              topReferrers: referrers.data,
+              topPaths: paths.data
+            };
+
+            core.setOutput('payload', JSON.stringify(payload));
+
+      - name: Update snapshot file
+        env:
+          PAYLOAD: ${{ steps.fetch.outputs.payload }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'analytics/traffic-history.json';
+          const payload = JSON.parse(process.env.PAYLOAD);
+
+          let doc = { schema: 1, snapshots: [] };
+          if (fs.existsSync(path)) {
+            doc = JSON.parse(fs.readFileSync(path, 'utf8'));
+          }
+
+          const idx = doc.snapshots.findIndex((s) => s.date === payload.date);
+          if (idx >= 0) {
+            doc.snapshots[idx] = payload;
+          } else {
+            doc.snapshots.push(payload);
+          }
+
+          doc.snapshots.sort((a, b) => a.date.localeCompare(b.date));
+          fs.writeFileSync(path, JSON.stringify(doc, null, 2) + '\n');
+          NODE
+
+      - name: Commit snapshot
+        run: |
+          if git diff --quiet -- analytics/traffic-history.json; then
+            echo "No snapshot change to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analytics/traffic-history.json
+          git commit -m "chore: snapshot github traffic ($(date -u +%F)) [skip ci]"
+          git push
