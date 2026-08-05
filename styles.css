@@ -231,11 +231,11 @@ legend {
 
 .members-warning {
   margin-top: -0.45rem;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid #f0d7a6;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #d4e3f8;
   border-radius: 9px;
-  background: #fff9ee;
-  color: #6b4c17;
+  background: #f6faff;
+  color: #2a4b6b;
 }
 
 .skill-section {
