@@ -1,6 +1,6 @@
 const memberCatalog = [
   { id: "account-manager", name: "Account Manager", description: "Account history, stakeholder maps, and handoff packages.", type: "suggested" },
-  { id: "operations-manager", name: "Operations Manager", description: "MSX/MSXi hygiene, milestones, and follow-up readiness.", type: "suggested" },
+  { id: "operations-manager", name: "Operations Manager", description: "Operational hygiene, milestones, and follow-up readiness.", type: "suggested" },
   { id: "product-researcher", name: "Product Researcher", description: "Product facts, roadmap checks, and customer-safe framing.", type: "suggested" },
   { id: "scrum-master", name: "Scrum Master", description: "Commitments, priorities, and follow-up tracking.", type: "suggested" },
   { id: "innovation-lead", name: "Innovation Lead", description: "Demos, labs, prototypes, and technical experiments.", type: "suggested" },
