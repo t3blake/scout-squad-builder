@@ -177,13 +177,13 @@ function applyPreset(preset) {
 function confirmRemoval(row) {
   if (row.type === "required") {
     return window.confirm(
-      `Remove required role "${row.name}"? This may reduce orchestration quality and guardrails.`
+      `Remove required role "${row.name}"? This is safe, but it may reduce routing coverage in the generated squad.`
     );
   }
 
   if (row.type === "suggested") {
     return window.confirm(
-      `Remove suggested role "${row.name}"? Recommended coverage may be reduced.`
+      `Remove suggested role "${row.name}"? This is safe, but it may reduce recommended routing coverage.`
     );
   }
 
