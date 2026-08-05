@@ -213,6 +213,18 @@ legend {
   margin: 0.2rem 0 0.5rem;
 }
 
+.skill-section {
+  border: 1px solid #d3deed;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.85rem;
+  background: #f9fcff;
+}
+
+.skill-section h3 {
+  margin: 0.2rem 0 0.45rem;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid #c8d4e5;
@@ -290,8 +302,10 @@ legend {
   background: #fff4f4;
   color: #7b1f1f;
   border-radius: 8px;
-  padding: 0.32rem 0.55rem;
-  font-size: 0.83rem;
+  padding: 0.26rem 0.52rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
 }
 
