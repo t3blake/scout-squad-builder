@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scout Squad Zip Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">Microsoft Scout Toolkit</p>
+      <h1>Squad Zip Builder</h1>
+      <p class="sub">Collect a few role details, then export a full squad package your CSAs can extract and point Scout to.</p>
+      <p class="disclaimer">This is a personal/community scaffold generator. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.</p>
+    </header>
+
+    <section class="panel explainer" aria-labelledby="overviewTitle">
+      <h2 id="overviewTitle">What this does</h2>
+      <p>Scout squads help you organize specialist agents with clear boundaries, memory patterns, and compliance guardrails. This builder gives you a ready-to-extract squad package plus a copy/paste Scout import prompt.</p>
+      <h3>Why teams use it</h3>
+      <ul>
+        <li>Faster onboarding for common work patterns.</li>
+        <li>Consistent guardrails from day one.</li>
+        <li>Flexible templates you can adapt without editing code.</li>
+      </ul>
+      <h3>Official docs (recommended)</h3>
+      <ul>
+        <li><a href="https://learn.microsoft.com/microsoft-365/copilot/" target="_blank" rel="noopener noreferrer">Microsoft 365 Copilot docs</a></li>
+        <li><a href="https://learn.microsoft.com/microsoft-copilot-studio/" target="_blank" rel="noopener noreferrer">Microsoft Copilot Studio docs</a></li>
+        <li><a href="https://learn.microsoft.com/" target="_blank" rel="noopener noreferrer">Microsoft Learn hub</a></li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <form id="builderForm" class="panel">
+        <h2>Squad Details</h2>
+
+        <label>Starter example
+          <select id="presetSelect" name="presetSelect" aria-describedby="presetHelp"></select>
+        </label>
+        <p id="presetHelp" class="hint">Examples are loaded from presets/presets.json. Add a new preset object there and it will appear automatically.</p>
+
+        <label>Squad name
+          <input name="squadName" required value="Copilot CSA Support Squad" />
+        </label>
+
+        <label>Owner name
+          <input name="ownerName" required value="Blake Erwin" />
+        </label>
+
+        <label>Owner role
+          <input name="ownerRole" required value="Senior Cloud Solution Architect" />
+        </label>
+
+        <label>Primary focus areas
+          <textarea name="focus" rows="4">M365 Copilot, Copilot Studio, Scout, agentic AI, regulated financial services accounts</textarea>
+        </label>
+
+        <label>Top accounts (comma-separated)
+          <input name="accounts" value="Woodgrove Bank, Contoso" />
+        </label>
+
+        <label>Tone / behavior notes
+          <textarea name="tone" rows="3">Concise, evidence-oriented, challenge assumptions, and avoid unverified claims.</textarea>
+        </label>
+
+        <fieldset>
+          <legend>Include members</legend>
+          <div id="members" class="chips"></div>
+        </fieldset>
+
+        <button type="submit" class="cta">Generate zip</button>
+      </form>
+
+      <aside class="panel preview">
+        <h2>Scout Install Prompt</h2>
+        <p>Copy this into Scout after extracting the zip.</p>
+        <textarea id="installPrompt" readonly rows="14"></textarea>
+        <button type="button" id="copyPromptButton" class="cta cta-secondary">Copy prompt</button>
+        <h3>Import steps</h3>
+        <ol>
+          <li>Generate and extract the zip.</li>
+          <li>If needed, run <code>scripts/set-team-root.ps1</code> with your local path.</li>
+          <li>Paste the prompt into your Scout skill flow.</li>
+          <li>Start with Squad Lead and validate output against official docs.</li>
+        </ol>
+      </aside>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+:root {
+  --bg: #f4efe6;
+  --ink: #11212d;
+  --ink-soft: #334e62;
+  --card: #fffaf2;
+  --line: #d8cdb9;
+  --accent: #0f766e;
+  --accent-2: #ea580c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 10%, #fff5df 0%, transparent 35%),
+    radial-gradient(circle at 90% 90%, #dff4f2 0%, transparent 30%),
+    var(--bg);
+}
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.hero h1 {
+  margin: 0.2rem 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.sub {
+  max-width: 70ch;
+  color: var(--ink-soft);
+}
+
+.disclaimer {
+  margin-top: 0.8rem;
+  max-width: 85ch;
+  border-left: 4px solid #0b5f58;
+  padding: 0.5rem 0.75rem;
+  background: #e9f7f5;
+  color: #0f2f43;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(17, 33, 45, 0.08);
+}
+
+.explainer h2,
+.explainer h3 {
+  margin-top: 0;
+}
+
+.explainer ul {
+  padding-left: 1.2rem;
+}
+
+label,
+fieldset {
+  display: block;
+  margin-bottom: 0.85rem;
+  font-weight: 500;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  margin-top: 0.35rem;
+  border: 1px solid #c8b79a;
+  border-radius: 10px;
+  padding: 0.65rem 0.7rem;
+  font: inherit;
+  background: #fffdf8;
+}
+
+.hint {
+  margin: -0.35rem 0 0.85rem;
+  color: #2f4a5c;
+  font-size: 0.9rem;
+}
+
+textarea {
+  resize: vertical;
+}
+
+fieldset {
+  border: 1px dashed #c8b79a;
+  border-radius: 12px;
+  padding: 0.7rem;
+}
+
+legend {
+  padding: 0 0.4rem;
+  color: var(--ink-soft);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid #b3cfc5;
+  background: #ebfbf8;
+  font-size: 0.9rem;
+}
+
+.cta {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(120deg, var(--accent), #0d9488 60%, var(--accent-2));
+}
+
+.cta:hover {
+  filter: brightness(1.05);
+}
+
+.cta-secondary {
+  margin-top: 0.5rem;
+  background: #184c66;
+}
+
+.preview ol {
+  padding-left: 1.2rem;
+}
+
+.preview textarea {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.88rem;
+  background: #fff;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
