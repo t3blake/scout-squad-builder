@@ -124,6 +124,50 @@ body {
   margin: 0 0 0.55rem;
 }
 
+.why-squads {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fcfdff 0%, #f6fbff 100%);
+  box-shadow: 0 8px 22px rgba(17, 33, 45, 0.05);
+}
+
+.why-squads-header h2 {
+  margin: 0;
+}
+
+.why-squads-header p {
+  margin: 0.45rem 0 0;
+  max-width: 72ch;
+  color: var(--ink-soft);
+}
+
+.why-squads-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.why-card {
+  border: 1px solid #dce6f2;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.85rem;
+}
+
+.why-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.why-card p {
+  margin: 0.45rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+}
+
 .flow-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -443,6 +487,10 @@ code {
 
 @media (max-width: 860px) {
   .flow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-squads-grid {
     grid-template-columns: 1fr;
   }
 
