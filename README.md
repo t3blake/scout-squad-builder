@@ -28,6 +28,17 @@ Open `index.html` in a browser.
 3. In GitHub repo settings, enable Pages from `main` branch root.
 4. Open the published URL and use the form.
 
+## Usage Analytics Retention
+
+GitHub's built-in traffic dashboard is time-limited. This repo includes a scheduled workflow
+that snapshots traffic metrics daily into versioned history.
+
+- Workflow: `.github/workflows/traffic-snapshot.yml`
+- Output file: `analytics/traffic-history.json`
+- Captured metrics: views, clones, top referrers, top paths
+
+You can also run it manually from Actions using **Snapshot GitHub Traffic**.
+
 ## Output
 
 The generated zip includes:
