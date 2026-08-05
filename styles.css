@@ -84,6 +84,22 @@ body {
   font-weight: 600;
 }
 
+.starter-path {
+  margin: 0.55rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cfe0f4;
+  border-radius: 10px;
+  background: #f7fbff;
+  color: #244465;
+  font-size: 0.92rem;
+  max-width: 78ch;
+}
+
+.starter-path a {
+  color: #1b56b7;
+  font-weight: 600;
+}
+
 .hero-chips {
   margin-top: 0.8rem;
   display: flex;
