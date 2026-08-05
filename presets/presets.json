@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "presets": [
+    {
+      "id": "knowledge-worker",
+      "label": "Knowledge Worker",
+      "squadName": "Knowledge Worker Productivity Squad",
+      "ownerRole": "Knowledge Worker",
+      "focus": "Meeting action capture, document synthesis, follow-up tracking, and weekly planning",
+      "accounts": "Internal projects, team stakeholders",
+      "tone": "Concise, practical, and execution-focused."
+    },
+    {
+      "id": "it-support-technician",
+      "label": "IT Support Technician",
+      "squadName": "IT Support Operations Squad",
+      "ownerRole": "IT Support Technician",
+      "focus": "Ticket triage, knowledge lookup, incident follow-up, and escalation drafting",
+      "accounts": "Service desk, endpoint operations, platform teams",
+      "tone": "Clear, calm, and diagnostic-first with explicit verification steps."
+    },
+    {
+      "id": "project-manager",
+      "label": "Project Manager",
+      "squadName": "Project Delivery Squad",
+      "ownerRole": "Project Manager",
+      "focus": "Milestone tracking, risk review, stakeholder update drafting, and status rollups",
+      "accounts": "Program stakeholders, delivery teams",
+      "tone": "Structured, timeline-aware, and risk-explicit."
+    },
+    {
+      "id": "sales-account-coordinator",
+      "label": "Sales / Account Coordinator",
+      "squadName": "Account Coordination Squad",
+      "ownerRole": "Sales and Account Coordinator",
+      "focus": "Meeting prep, account notes, follow-up sequencing, and customer-safe message drafting",
+      "accounts": "Customer accounts, partner stakeholders",
+      "tone": "Customer-aware, concise, and commercially practical."
+    }
+  ]
+}
