@@ -1,0 +1,14 @@
+{
+  "name": "scout-squad-zip-builder",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static builder for Scout squad starter packages",
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=line"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "http-server": "^14.1.1"
+  }
+}
