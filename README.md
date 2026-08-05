@@ -39,7 +39,6 @@ The generated zip includes:
 - `.squad/agents/<member>/charter.md`
 - `.squad/agents/<member>/history.md`
 - `standalone-agents/*.agent.md`
-- `scripts/set-team-root.ps1`
 
 ## Notes
 
