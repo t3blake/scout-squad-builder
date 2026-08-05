@@ -114,14 +114,14 @@ function installPromptText(teamRoot, skillNameInput) {
 
   return [
     `Install this squad from ${teamRoot}.`,
-    `Set TEAM_ROOT to the folder where you extracted this zip (edit the path in this prompt).`,
-    "Use manifest.json and .github/agents/squad.agent.md as the coordinator source.",
+    "First inspect manifest.json and README.md.",
+    "Set TEAM_ROOT to this exact folder path in all generated coordinator, standalone-agent, and skill instructions. Replace any <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders.",
+    "Use .github/agents/squad.agent.md as the Squad Lead coordinator source.",
     "Install standalone-agents/*.agent.md as user-level custom agents.",
-    "Create a reusable Scout skill wrapper for this squad.",
-    `Name the skill ${slashSkill}.`,
-    `Skill purpose: when a user calls ${slashSkill}, load this squad context and route work through Squad Lead.`,
-    `How to use: run ${slashSkill} with a task or question; Squad Lead should orchestrate specialists and return one consolidated response.`,
-    "Then route work through Squad Lead and return one consolidated response."
+    "If an agent or skill name already exists, ask before overwrite; otherwise preserve existing items and continue.",
+    `Create a reusable Scout skill wrapper named ${slashSkill} using TEAM_ROOT\\skills\\${skillName}.md as the source spec.`,
+    "If local-file install or skill creation needs approval, ask for approval first. If capability is unavailable, provide manual copy/paste steps and continue.",
+    `After install, verify all referenced files exist under TEAM_ROOT, verify no placeholders remain, list installed agents/skills, and run a harmless routing smoke test via ${slashSkill}.`
   ].join("\n");
 }
 
@@ -467,6 +467,9 @@ function buildFiles(values) {
     ? "- Trigger Scribe closeout with run receipt after each dispatched run."
     : "- Run closeout and verification explicitly in each response (Scribe removed).";
 
+  const skillName = normalizedSkillName(values.skillName);
+  const slashSkill = `/${skillName}`;
+
   const squadLead = `---
 name: Squad Lead
 description: "Coordinator for ${values.squadName}. Routes work to the right specialist(s) and synthesizes one response."
@@ -477,9 +480,9 @@ You are Squad Lead for ${ownerName || "this team"} (${values.ownerRole}).
 TEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>
 
 Core directives:
-- Read .squad/context.md first for package briefing and source-of-truth mapping.
-- Route work to the best specialist(s) from .squad/team.md.
-- Enforce evidence tiers and verify-before-claim from .squad/rules.md.
+- Read \${TEAM_ROOT}\\.squad\\context.md first for package briefing and source-of-truth mapping.
+- Route work to the best specialist(s) from \${TEAM_ROOT}\\.squad\\team.md.
+- Enforce evidence tiers and verify-before-claim from \${TEAM_ROOT}\\.squad\\rules.md.
 - Treat systems-of-record actions as draft-only unless user explicitly performs final submit.
 - If required context is missing or instructions conflict, ask one concise clarifying question before dispatching.
 - For multi-domain requests, fan out in parallel and return one concise synthesis.
@@ -506,6 +509,8 @@ ${scribeDirective}
 
   const contextMd = `# Context Contract\n\nThis file is the fast-start briefing for this generated squad package.\n\n## Source of truth\n\n- Canonical runtime rules: .squad/rules.md\n- Member definitions and role intent: .squad/team.md\n- Routing guidance: .squad/routing.md\n- Coordinator behavior: .github/agents/squad.agent.md\n- Durable decisions: .squad/decisions.md\n\n## Package profile\n\n- Squad name: ${values.squadName}\n- Owner role: ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n- Scribe present: ${hasScribe ? "yes" : "no"}\n\n## Member summary\n\n${memberSummaryLines}\n\n## Operating notes\n\n- This file is a briefing index, not a replacement for the source-of-truth files above.\n- If instructions conflict, follow source-of-truth files in the listed order and ask one concise clarification question when needed.\n`;
 
+  const skillSpecMd = `# ${slashSkill} Skill Wrapper Spec\n\n## Name\n\n${slashSkill}\n\n## Purpose\n\nLoad this squad context from TEAM_ROOT and route work through Squad Lead for one consolidated response.\n\n## Required sources\n\n- \${TEAM_ROOT}\\manifest.json\n- \${TEAM_ROOT}\\.github\\agents\\squad.agent.md\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\team.md\n- \${TEAM_ROOT}\\.squad\\routing.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n\n## Behavior\n\n1. Load required sources from TEAM_ROOT.\n2. Route the request through Squad Lead.\n3. Return one consolidated response.\n4. For conflicts or missing context, ask one concise clarification question.\n\n## Collision policy\n\nIf ${slashSkill} already exists, ask before overwrite.\n\n## Post-install smoke test\n\n- Confirm required sources exist under TEAM_ROOT.\n- Confirm no <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders remain.\n- Confirm ${slashSkill} resolves to this wrapper and returns a harmless routing test response.\n`;
+
   const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Zip Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
 
   const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n### Official documentation\n\n- https://learn.microsoft.com/en-us/microsoft-scout/\n- https://learn.microsoft.com/en-us/microsoft-scout/overview\n\n### Community and ecosystem references\n\n- https://devblogs.microsoft.com/agent-framework/building-agent-teams-with-agent-framework-github-copilot-cli-and-squad/\n- https://github.blog/ai-and-ml/github-copilot/how-squad-runs-coordinated-ai-agents-inside-your-repository/\n- https://github.com/bradygaster/squad\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. In the install prompt below, edit TEAM_ROOT to the folder where you extracted the zip.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
@@ -526,6 +531,7 @@ ${scribeDirective}
     ".squad/run-receipts/.gitkeep": "",
     ".squad/templates/decision-inbox-template.md": "### <timestamp>: <title>\n**By:** <member>\n**What:** <decision>\n**Why:** <rationale>\n**Approval:** <approved|proposed>\n",
     ".squad/templates/run-receipt-template.md": "**Timestamp:** <UTC>\n**Request:** <summary>\n**Members:** <list>\n**Status:** <completed|incomplete>\n**Verification:** <verified|partial|unverified>\n",
+    `skills/${skillName}.md`: skillSpecMd,
     ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/compliance-officer/audit-trail.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
   };
 
@@ -538,7 +544,7 @@ ${scribeDirective}
     files[`.squad/agents/${id}/history.md`] = `# ${memberName} - History\n\n## Core Context\n\n${ownerName ? `- Owner: ${ownerName}\n` : ""}- Focus: ${values.focus}\n`;
 
     if (id !== "scribe") {
-      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nBefore responding, read:\n- .squad/context.md\n- .squad/agents/${id}/charter.md\n- .squad/rules.md\n- .squad/decisions.md\n- .squad/agents/${id}/history.md\n\nIf a durable team decision emerges, write a drop file to .squad/decisions/inbox/ and notify the user.\n`;
+      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nTEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>\n\nBefore responding, read:\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\charter.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\history.md\n\nIf a durable team decision emerges, write a drop file to \${TEAM_ROOT}\\.squad\\decisions\\inbox\\ and notify the user.\n`;
     }
   }
 
