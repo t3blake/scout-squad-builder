@@ -108,6 +108,9 @@ Generated squad package must include:
 5. Durable decision capture path (`.squad/decisions/inbox/` + merged ledger).
 6. Run receipts and closeout scaffolding.
 7. Reference section in generated README that points users to official docs for canonical behavior and latest platform updates.
+8. Content-ownership routing: `.squad/routing.md` defines, per member, a named owner file (`.squad/agents/<member>/notes.md`) for that member's own findings/working notes. `.squad/decisions.md` (via the decisions inbox) is reserved for team-level durable decisions only -- never a catch-all destination for member-specific content.
+9. Single source of truth: any policy or standard is defined once in its owning file (normally `.squad/rules.md`). Other generated files reference it by name/section and must not restate its text.
+10. Ceremony consolidation: generated `.squad/ceremonies.md` ships with one clearly-scoped closeout ceremony, not multiple overlapping post-work stubs, plus a note that new verification needs should extend it rather than create a sibling ceremony.
 
 ## 9. Flexibility Model
 
@@ -145,6 +148,7 @@ Minimum generated structure:
 - `.squad/templates/run-receipt-template.md`
 - `.squad/agents/<member>/charter.md`
 - `.squad/agents/<member>/history.md`
+- `.squad/agents/<member>/notes.md`
 - `standalone-agents/<member>.agent.md` (non-scribe)
 - `scripts/set-team-root.ps1`
 - `.gitattributes`
@@ -208,6 +212,17 @@ Core fields:
 5. Need concise import instructions that emphasize "extract + prompt" pattern.
 6. Need explicit official-doc references and non-affiliation disclaimer language to prevent accidental implied endorsement.
 7. Need role-neutral starter examples rather than owner-specific defaults.
+
+### 15.3 Lessons learned from a live squad's framework drift (post-launch)
+
+A live squad built from this pattern accumulated real bandaid debt after months of use, found during a framework consolidation pass:
+
+1. Misrouted content: only one member type had a dedicated owner file, so another reviewer-type member's findings had nowhere to go and leaked into the shared decisions ledger -- a file read on every dispatch -- growing it to roughly 48KB with content most members never needed.
+2. Restated rules: a single rule change was copy-pasted into 7 different files (including one member's own charter, 3 times) instead of being defined once and referenced, because nothing enforced single-source-of-truth for policy text.
+3. Overlapping ceremonies: three post-work ceremonies with vague, overlapping scope accumulated over time and had to be manually merged into one.
+4. Stale cheat-sheets: an optional wrapper skill's routing summary drifted out of sync with the canonical routing file after a policy change, because it restated the routing table instead of pointing to it.
+
+Section 8 items 8-10 exist specifically so a squad generated from this tool does not repeat the same drift.
 
 ## 16. Phased Plan
 

@@ -49,6 +49,7 @@ The generated zip includes:
 - `.squad/*` core files
 - `.squad/agents/<member>/charter.md`
 - `.squad/agents/<member>/history.md`
+- `.squad/agents/<member>/notes.md`
 - `standalone-agents/*.agent.md`
 
 ## Notes

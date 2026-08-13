@@ -481,8 +481,9 @@ TEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>
 
 Core directives:
 - Read \${TEAM_ROOT}\\.squad\\context.md first for package briefing and source-of-truth mapping.
-- Route work to the best specialist(s) from \${TEAM_ROOT}\\.squad\\team.md.
+- Route work to the best specialist(s) from \${TEAM_ROOT}\\.squad\\team.md, using \${TEAM_ROOT}\\.squad\\routing.md for content-ownership destinations.
 - Enforce evidence tiers and verify-before-claim from \${TEAM_ROOT}\\.squad\\rules.md.
+- Enforce content ownership: only route team-level durable decisions to decisions.md; member-specific findings and working notes belong in that member's own \${TEAM_ROOT}\\.squad\\agents\\<member>\\notes.md.
 - Treat systems-of-record actions as draft-only unless user explicitly performs final submit.
 - If required context is missing or instructions conflict, ask one concise clarifying question before dispatching.
 - For multi-domain requests, fan out in parallel and return one concise synthesis.
@@ -499,15 +500,15 @@ ${scribeDirective}
 
   const teamMd = `# ${values.squadName}\n\n## Owner\n\n${ownerLine}- ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n\n## Members\n\n| Member | Responsibility | Type |\n| --- | --- | --- |\n${teamRows}\n`;
 
-  const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Any durable team behavior change must be captured in decisions ledger.\n5. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
+  const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Content ownership: .squad/decisions.md is for team-level durable decisions only (routing changes, policy changes, cross-member agreements). Member-specific findings, working notes, and narrative logs belong in that member's own .squad/agents/<member>/notes.md -- never default to decisions.md for member-specific content.\n5. Single source of truth: define any policy or standard once, in its owning file. Other files (charters, ceremonies, coordinator/skill prompts) reference it by name and section and must not restate its text. Update the one owning location when a rule changes -- do not copy the text elsewhere.\n6. Any durable team-level decision must be captured in the decisions ledger via the decisions inbox.\n7. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
 
   const routingLines = selected
-    .map((m) => `- ${m.name} (${m.type}): ${m.description}`)
+    .map((m) => `- ${m.name} (${m.type}): ${m.description} -- owner file for findings/working notes: .squad/agents/${m.id}/notes.md`)
     .join("\n");
 
-  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n`;
+  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map (content ownership)\n${routingLines}\n\nTeam-level durable decisions go to .squad/decisions.md via the decisions inbox. Member-specific findings, working notes, and narrative logs go to that member's own notes.md above -- never default to decisions.md for member-specific content (see .squad/rules.md).\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n\n## Adding new content types\n\nWhen a new kind of recurring content appears (a new artifact type, review lane, etc.), add an explicit row above naming its owner file before routing anything to it. Do not let new content default to .squad/decisions.md.\n`;
 
-  const contextMd = `# Context Contract\n\nThis file is the fast-start briefing for this generated squad package.\n\n## Source of truth\n\n- Canonical runtime rules: .squad/rules.md\n- Member definitions and role intent: .squad/team.md\n- Routing guidance: .squad/routing.md\n- Coordinator behavior: .github/agents/squad.agent.md\n- Durable decisions: .squad/decisions.md\n\n## Package profile\n\n- Squad name: ${values.squadName}\n- Owner role: ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n- Scribe present: ${hasScribe ? "yes" : "no"}\n\n## Member summary\n\n${memberSummaryLines}\n\n## Operating notes\n\n- This file is a briefing index, not a replacement for the source-of-truth files above.\n- If instructions conflict, follow source-of-truth files in the listed order and ask one concise clarification question when needed.\n`;
+  const contextMd = `# Context Contract\n\nThis file is the fast-start briefing for this generated squad package.\n\n## Source of truth\n\n- Canonical runtime rules: .squad/rules.md\n- Member definitions and role intent: .squad/team.md\n- Routing guidance: .squad/routing.md\n- Coordinator behavior: .github/agents/squad.agent.md\n- Durable decisions: .squad/decisions.md\n\n## Package profile\n\n- Squad name: ${values.squadName}\n- Owner role: ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n- Scribe present: ${hasScribe ? "yes" : "no"}\n\n## Member summary\n\n${memberSummaryLines}\n\n## Operating notes\n\n- This file is a briefing index, not a replacement for the source-of-truth files above.\n- Content ownership: team-level durable decisions go to .squad/decisions.md; member-specific findings/notes go to that member's own .squad/agents/<member>/notes.md (see .squad/rules.md and .squad/routing.md).\n- If instructions conflict, follow source-of-truth files in the listed order and ask one concise clarification question when needed.\n`;
 
   const skillSpecMd = `# ${slashSkill} Skill Wrapper Spec\n\n## Name\n\n${slashSkill}\n\n## Purpose\n\nLoad this squad context from TEAM_ROOT and route work through Squad Lead for one consolidated response.\n\n## Required sources\n\n- \${TEAM_ROOT}\\manifest.json\n- \${TEAM_ROOT}\\.github\\agents\\squad.agent.md\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\team.md\n- \${TEAM_ROOT}\\.squad\\routing.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n\n## Behavior\n\n1. Load required sources from TEAM_ROOT.\n2. Route the request through Squad Lead.\n3. Return one consolidated response.\n4. For conflicts or missing context, ask one concise clarification question.\n\n## Collision policy\n\nIf ${slashSkill} already exists, ask before overwrite.\n\n## Post-install smoke test\n\n- Confirm required sources exist under TEAM_ROOT.\n- Confirm no <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders remain.\n- Confirm ${slashSkill} resolves to this wrapper and returns a harmless routing test response.\n`;
 
@@ -523,7 +524,7 @@ ${scribeDirective}
     ".squad/team.md": teamMd,
     ".squad/rules.md": rulesMd,
     ".squad/routing.md": routingMd,
-    ".squad/ceremonies.md": "# Ceremonies\n\n- Weekly Focus Review\n- Pre-send Compliance Check\n- Post-work Verification Sweep\n",
+    ".squad/ceremonies.md": "# Ceremonies\n\n- Weekly Focus Review: recurring check-in on priorities and open items.\n- Deliverable and Closeout Verification Gate: one consolidated pre-send/post-work check covering compliance, verify-before-claim, and closeout receipt. Extend this ceremony's checklist for new verification needs -- do not create additional overlapping pre-send or post-work ceremonies.\n",
     ".squad/decisions.md": decisionsMd,
     ".squad/decisions/inbox/.gitkeep": "",
     ".squad/log/.gitkeep": "",
@@ -532,19 +533,21 @@ ${scribeDirective}
     ".squad/templates/decision-inbox-template.md": "### <timestamp>: <title>\n**By:** <member>\n**What:** <decision>\n**Why:** <rationale>\n**Approval:** <approved|proposed>\n",
     ".squad/templates/run-receipt-template.md": "**Timestamp:** <UTC>\n**Request:** <summary>\n**Members:** <list>\n**Status:** <completed|incomplete>\n**Verification:** <verified|partial|unverified>\n",
     [`skills/${skillName}.md`]: skillSpecMd,
-    ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/compliance-officer/audit-trail.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
+    ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/*/notes.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
   };
 
   for (const member of selected) {
     const memberName = member.name;
     const id = member.id;
 
-    files[`.squad/agents/${id}/charter.md`] = `# ${memberName}\n\n## Role\n${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\n## Guardrails\n- Follow .squad/rules.md\n- Stay in role\n- Keep outputs concise and verifiable\n`;
+    files[`.squad/agents/${id}/charter.md`] = `# ${memberName}\n\n## Role\n${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\n## Guardrails\n- Follow .squad/rules.md\n- Stay in role\n- Keep outputs concise and verifiable\n\n## Content ownership\n- Write ${memberName}-specific findings, working notes, and narrative logs to .squad/agents/${id}/notes.md.\n- Only write to .squad/decisions.md (via the decisions inbox) for a team-level durable decision that affects the whole squad.\n`;
 
     files[`.squad/agents/${id}/history.md`] = `# ${memberName} - History\n\n## Core Context\n\n${ownerName ? `- Owner: ${ownerName}\n` : ""}- Focus: ${values.focus}\n`;
 
+    files[`.squad/agents/${id}/notes.md`] = `# ${memberName} - Notes\n\nThis is ${memberName}'s owner file for findings, working notes, and narrative logs. Keep member-specific content here instead of routing it to .squad/decisions.md (see .squad/rules.md).\n`;
+
     if (id !== "scribe") {
-      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nTEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>\n\nBefore responding, read:\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\charter.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\history.md\n\nIf a durable team decision emerges, write a drop file to \${TEAM_ROOT}\\.squad\\decisions\\inbox\\ and notify the user.\n`;
+      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nTEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>\n\nBefore responding, read:\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\charter.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\history.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\notes.md\n\nWrite your own findings and working notes to \${TEAM_ROOT}\\.squad\\agents\\${id}\\notes.md. Only write a drop file to \${TEAM_ROOT}\\.squad\\decisions\\inbox\\ (which merges into decisions.md) for a team-level durable decision -- not your own working notes.\n`;
     }
   }
 
