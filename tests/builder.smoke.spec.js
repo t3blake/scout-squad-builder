@@ -17,7 +17,7 @@ test.describe('Scout Squad Zip Builder smoke tests', () => {
   });
 
   test('uses public-safe starter values', async ({ page }) => {
-    await expect(page.getByLabel('Squad name')).not.toHaveValue(/USAA|Bank of America|BofA/);
+    await expect(page.getByLabel('Squad name')).not.toHaveValue(/Private Customer|Example Account/);
     await expect(page.getByLabel('Top accounts (comma-separated)')).toHaveValue('Contoso, partner stakeholders');
   });
 
