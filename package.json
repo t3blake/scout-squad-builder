@@ -1,5 +1,5 @@
 {
-  "name": "scout-squad-zip-builder",
+  "name": "scout-squad-builder",
   "private": true,
   "version": "1.0.0",
   "description": "Static builder for Scout squad starter packages",

@@ -16,6 +16,11 @@ test.describe('Scout Squad Zip Builder smoke tests', () => {
     await expect(prompt).toHaveValue(/harmless routing smoke test/);
   });
 
+  test('uses public-safe starter values', async ({ page }) => {
+    await expect(page.getByLabel('Squad name')).not.toHaveValue(/USAA|Bank of America|BofA/);
+    await expect(page.getByLabel('Top accounts (comma-separated)')).toHaveValue('Contoso, partner stakeholders');
+  });
+
   test('flags duplicate member names on generate', async ({ page }) => {
     const operationsName = page.getByLabel('Role name for operations-manager');
     await expect(operationsName).toBeVisible();

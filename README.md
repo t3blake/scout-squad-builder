@@ -1,10 +1,10 @@
-# Scout Squad Zip Builder
+# Scout Squad Builder
 
 Static web app that generates a ready-to-extract squad package for Microsoft Scout.
 
 ## Why this exists
 
-Many CSAs can use the same squad pattern, but each needs small customizations
+Many users can use the same squad pattern, but each needs small customizations
 (name, role focus, accounts, members, tone). This app captures those inputs and
 produces a zip containing squad markdown/json files.
 
@@ -38,6 +38,13 @@ that snapshots traffic metrics daily into versioned history.
 - Captured metrics: views, clones, top referrers, top paths
 
 You can also run it manually from Actions using **Snapshot GitHub Traffic**.
+
+## Public-safe defaults
+
+The builder is designed for public distribution. Its starter values use generic
+roles, use cases, and Contoso-style placeholders. Generated packages still
+include the values entered by the user, so review customized content before
+sharing it publicly.
 
 ## Output
 

@@ -1,4 +1,4 @@
-# Scout Squad Zip Builder - Design
+# Scout Squad Builder - Design
 
 Source of truth: This file is the canonical product/design specification for this project. Implementation files (`index.html`, `styles.css`, `app.js`) are derived artifacts.
 
@@ -208,6 +208,10 @@ Core fields:
 5. Need concise import instructions that emphasize "extract + prompt" pattern.
 6. Need explicit official-doc references and non-affiliation disclaimer language to prevent accidental implied endorsement.
 7. Need role-neutral starter examples rather than owner-specific defaults.
+8. Public-safe defaults should be generic, while the working contract can be
+	generated from existing inputs instead of adding process fields to the form.
+9. Usefulness should be an explicit quality gate alongside evidence and
+	verification, with review scaled to the stakes.
 
 ## 16. Phased Plan
 

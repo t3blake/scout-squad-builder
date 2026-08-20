@@ -30,7 +30,7 @@ const builtinPresets = [
     squadName: "Knowledge Worker Productivity Squad",
     ownerRole: "Knowledge Worker",
     focus: "Meeting action capture, document synthesis, follow-up tracking, and weekly planning",
-    accounts: "Internal projects, team stakeholders",
+    accounts: "Contoso, partner stakeholders",
     tone: "Concise, practical, and execution-focused."
   },
   {
@@ -499,19 +499,21 @@ ${scribeDirective}
 
   const teamMd = `# ${values.squadName}\n\n## Owner\n\n${ownerLine}- ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n\n## Members\n\n| Member | Responsibility | Type |\n| --- | --- | --- |\n${teamRows}\n`;
 
-  const rulesMd = `# Shared Operating Rules\n\n1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n4. Any durable team behavior change must be captured in decisions ledger.\n5. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
+  const workingContract = `## Working contract\n\n- Objective: support ${values.ownerRole || "the owner's role"} across ${values.focus || "the selected focus areas"}.\n- Intended value: produce a concise, actionable response that advances the user's work.\n- Scope: use the selected members and routing map; do not invent missing context.\n- Evidence: distinguish sourced facts, direct observations, and hypotheses; verify completion independently.\n- Done means: the response is useful for the stated focus, evidence-aware, and clear about any approval or follow-up needed.\n- Review intensity: scale review to the stakes; routine work gets a light pass, higher-impact or outward-facing work gets deeper review.\n\n`;
+
+  const rulesMd = `# Shared Operating Rules\n\n${workingContract}1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Value gate: usefulness is a separate requirement from source safety; shape the response around the user's intended outcome.\n4. Review gate: distinguish source-safe, useful, and ready-to-share judgments; do not let review erase the central recommendation.\n5. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n6. Any durable team behavior change must be captured in decisions ledger.\n7. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
 
   const routingLines = selected
     .map((m) => `- ${m.name} (${m.type}): ${m.description}`)
     .join("\n");
 
-  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n`;
+  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\n## Quality routing\n\nFor substantial deliverables, align on audience, intended outcome, and definition of done before drafting. Include evidence review when factual claims matter and approval review when content leaves the user's workspace.\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n`;
 
   const contextMd = `# Context Contract\n\nThis file is the fast-start briefing for this generated squad package.\n\n## Source of truth\n\n- Canonical runtime rules: .squad/rules.md\n- Member definitions and role intent: .squad/team.md\n- Routing guidance: .squad/routing.md\n- Coordinator behavior: .github/agents/squad.agent.md\n- Durable decisions: .squad/decisions.md\n\n## Package profile\n\n- Squad name: ${values.squadName}\n- Owner role: ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n- Scribe present: ${hasScribe ? "yes" : "no"}\n\n## Member summary\n\n${memberSummaryLines}\n\n## Operating notes\n\n- This file is a briefing index, not a replacement for the source-of-truth files above.\n- If instructions conflict, follow source-of-truth files in the listed order and ask one concise clarification question when needed.\n`;
 
   const skillSpecMd = `# ${slashSkill} Skill Wrapper Spec\n\n## Name\n\n${slashSkill}\n\n## Purpose\n\nLoad this squad context from TEAM_ROOT and route work through Squad Lead for one consolidated response.\n\n## Required sources\n\n- \${TEAM_ROOT}\\manifest.json\n- \${TEAM_ROOT}\\.github\\agents\\squad.agent.md\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\team.md\n- \${TEAM_ROOT}\\.squad\\routing.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n\n## Behavior\n\n1. Load required sources from TEAM_ROOT.\n2. Route the request through Squad Lead.\n3. Return one consolidated response.\n4. For conflicts or missing context, ask one concise clarification question.\n\n## Collision policy\n\nIf ${slashSkill} already exists, ask before overwrite.\n\n## Post-install smoke test\n\n- Confirm required sources exist under TEAM_ROOT.\n- Confirm no <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders remain.\n- Confirm ${slashSkill} resolves to this wrapper and returns a harmless routing test response.\n`;
 
-  const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Zip Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
+  const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
 
   const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n### Official documentation\n\n- https://learn.microsoft.com/en-us/microsoft-scout/\n- https://learn.microsoft.com/en-us/microsoft-scout/overview\n\n### Community and ecosystem references\n\n- https://devblogs.microsoft.com/agent-framework/building-agent-teams-with-agent-framework-github-copilot-cli-and-squad/\n- https://github.blog/ai-and-ml/github-copilot/how-squad-runs-coordinated-ai-agents-inside-your-repository/\n- https://github.com/bradygaster/squad\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. In the install prompt below, edit TEAM_ROOT to the folder where you extracted the zip.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
 
@@ -548,7 +550,6 @@ ${scribeDirective}
     }
   }
 
-  return { files, squadSlug };
 }
 
 form.addEventListener("input", refreshPromptPreview);
