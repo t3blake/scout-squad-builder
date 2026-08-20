@@ -1,4 +1,245 @@
 {
   "schema": 1,
-  "snapshots": []
+  "snapshots": [
+    {
+      "date": "2026-08-06",
+      "capturedAt": "2026-08-06T09:06:49.526Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-07",
+      "capturedAt": "2026-08-07T07:41:49.054Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-08",
+      "capturedAt": "2026-08-08T07:15:28.492Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-09",
+      "capturedAt": "2026-08-09T07:16:26.927Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-10",
+      "capturedAt": "2026-08-10T08:04:27.531Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-11",
+      "capturedAt": "2026-08-11T07:37:56.915Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-12",
+      "capturedAt": "2026-08-12T07:52:47.083Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-13",
+      "capturedAt": "2026-08-13T07:53:16.842Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-14",
+      "capturedAt": "2026-08-14T07:50:57.894Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-15",
+      "capturedAt": "2026-08-15T06:58:08.060Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-16",
+      "capturedAt": "2026-08-16T06:59:42.554Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-17",
+      "capturedAt": "2026-08-17T07:16:35.384Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-18",
+      "capturedAt": "2026-08-18T07:04:19.358Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-19",
+      "capturedAt": "2026-08-19T07:05:26.493Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    },
+    {
+      "date": "2026-08-20",
+      "capturedAt": "2026-08-20T07:06:21.306Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
+    }
+  ]
 }
