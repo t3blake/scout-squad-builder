@@ -8,7 +8,6 @@ const memberCatalog = [
   { id: "strategic-advisor", name: "Strategic Advisor", description: "Pressure-tests assumptions, risks, and tradeoffs.", type: "suggested" },
   { id: "audit-manager", name: "Audit Manager", description: "Fact-checks claims, sources, and evidence quality.", type: "suggested" },
   { id: "compliance-officer", name: "Compliance Officer", description: "Enforces approval boundaries and verify-before-claim.", type: "suggested" },
-  { id: "learning-coordinator", name: "Learning Coordinator", description: "Tracks learning goals, development topics, and practice plans.", type: "suggested" },
   { id: "scribe", name: "Scribe", description: "Silent closeout, receipts, and durable memory merge.", type: "required" }
 ];
 

@@ -230,9 +230,10 @@ Phase 2:
 ### Preset roster principle
 
 Starter presets should include only roles that support the selected use case.
-Personal operating roles or recurring rituals remain optional catalog roles,
-not universal defaults. Each preset declares `defaultMembers` by member id,
-while Scribe remains the universal required role.
+Personal operating roles or recurring rituals are excluded from the catalog,
+not merely removed from universal defaults. Each preset declares
+`defaultMembers` by member id, while Scribe remains the universal required
+role.
 
 ## 17. Open Questions
 

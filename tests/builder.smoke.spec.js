@@ -24,14 +24,14 @@ test.describe('Scout Squad Zip Builder smoke tests', () => {
   test('uses a focused knowledge-worker roster', async ({ page }) => {
     await expect(page.getByLabel('Role name for scrum-master')).toBeVisible();
     await expect(page.getByLabel('Role name for content-strategist')).toBeVisible();
-    await expect(page.getByLabel('Role name for learning-coordinator')).not.toBeVisible();
+    await expect(page.getByLabel('Role name for learning-coordinator')).not.toBeAttached();
     await expect(page.getByLabel('Role name for operations-manager')).not.toBeVisible();
   });
 
   test('can add an optional catalog role', async ({ page }) => {
-    await page.getByLabel('Catalog role to add').selectOption('learning-coordinator');
+    await page.getByLabel('Catalog role to add').selectOption('audit-manager');
     await page.getByRole('button', { name: 'Add catalog role' }).click();
-    await expect(page.getByLabel('Role name for learning-coordinator')).toBeVisible();
+    await expect(page.getByLabel('Role name for audit-manager')).toBeVisible();
   });
 
   test('flags duplicate member names on generate', async ({ page }) => {
