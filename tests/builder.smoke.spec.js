@@ -21,10 +21,23 @@ test.describe('Scout Squad Zip Builder smoke tests', () => {
     await expect(page.getByLabel('Top accounts (comma-separated)')).toHaveValue('Contoso, partner stakeholders');
   });
 
+  test('uses a focused knowledge-worker roster', async ({ page }) => {
+    await expect(page.getByLabel('Role name for scrum-master')).toBeVisible();
+    await expect(page.getByLabel('Role name for content-strategist')).toBeVisible();
+    await expect(page.getByLabel('Role name for learning-coordinator')).not.toBeVisible();
+    await expect(page.getByLabel('Role name for operations-manager')).not.toBeVisible();
+  });
+
+  test('can add an optional catalog role', async ({ page }) => {
+    await page.getByLabel('Catalog role to add').selectOption('learning-coordinator');
+    await page.getByRole('button', { name: 'Add catalog role' }).click();
+    await expect(page.getByLabel('Role name for learning-coordinator')).toBeVisible();
+  });
+
   test('flags duplicate member names on generate', async ({ page }) => {
-    const operationsName = page.getByLabel('Role name for operations-manager');
-    await expect(operationsName).toBeVisible();
-    await operationsName.fill('Account Manager');
+    const contentName = page.getByLabel('Role name for content-strategist');
+    await expect(contentName).toBeVisible();
+    await contentName.fill('Scrum Master');
     await page.getByRole('button', { name: 'Generate zip' }).click();
 
     const validation = page.locator('#memberValidationMessage');

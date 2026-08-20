@@ -8,7 +8,7 @@ const memberCatalog = [
   { id: "strategic-advisor", name: "Strategic Advisor", description: "Pressure-tests assumptions, risks, and tradeoffs.", type: "suggested" },
   { id: "audit-manager", name: "Audit Manager", description: "Fact-checks claims, sources, and evidence quality.", type: "suggested" },
   { id: "compliance-officer", name: "Compliance Officer", description: "Enforces approval boundaries and verify-before-claim.", type: "suggested" },
-  { id: "skilling-coordinator", name: "Skilling Coordinator", description: "Tracks skilling backlog and Friday topic ideas.", type: "suggested" },
+  { id: "learning-coordinator", name: "Learning Coordinator", description: "Tracks learning goals, development topics, and practice plans.", type: "suggested" },
   { id: "scribe", name: "Scribe", description: "Silent closeout, receipts, and durable memory merge.", type: "required" }
 ];
 
@@ -18,6 +18,8 @@ const promptBox = document.getElementById("installPrompt");
 const presetSelect = document.getElementById("presetSelect");
 const copyPromptButton = document.getElementById("copyPromptButton");
 const addMemberButton = document.getElementById("addMemberButton");
+const catalogMemberSelect = document.getElementById("catalogMemberSelect");
+const addCatalogMemberButton = document.getElementById("addCatalogMemberButton");
 const newMemberName = document.getElementById("newMemberName");
 const newMemberDescription = document.getElementById("newMemberDescription");
 const skillNameInputEl = form.elements.skillName;
@@ -31,7 +33,8 @@ const builtinPresets = [
     ownerRole: "Knowledge Worker",
     focus: "Meeting action capture, document synthesis, follow-up tracking, and weekly planning",
     accounts: "Contoso, partner stakeholders",
-    tone: "Concise, practical, and execution-focused."
+    tone: "Concise, practical, and execution-focused.",
+    defaultMembers: ["scrum-master", "content-strategist"]
   },
   {
     id: "it-support-technician",
@@ -40,7 +43,8 @@ const builtinPresets = [
     ownerRole: "IT Support Technician",
     focus: "Ticket triage, knowledge lookup, incident follow-up, and escalation drafting",
     accounts: "Service desk, endpoint operations, platform teams",
-    tone: "Clear, calm, and diagnostic-first with explicit verification steps."
+    tone: "Clear, calm, and diagnostic-first with explicit verification steps.",
+    defaultMembers: ["operations-manager", "product-researcher"]
   },
   {
     id: "project-manager",
@@ -49,7 +53,8 @@ const builtinPresets = [
     ownerRole: "Project Manager",
     focus: "Milestone tracking, risk review, stakeholder update drafting, and status rollups",
     accounts: "Program stakeholders, delivery teams",
-    tone: "Structured, timeline-aware, and risk-explicit."
+    tone: "Structured, timeline-aware, and risk-explicit.",
+    defaultMembers: ["operations-manager", "scrum-master", "strategic-advisor"]
   },
   {
     id: "sales-account-coordinator",
@@ -58,13 +63,14 @@ const builtinPresets = [
     ownerRole: "Sales and Account Coordinator",
     focus: "Meeting prep, account notes, follow-up sequencing, and customer-safe message drafting",
     accounts: "Customer accounts, partner stakeholders",
-    tone: "Customer-aware, concise, and commercially practical."
+    tone: "Customer-aware, concise, and commercially practical.",
+    defaultMembers: ["account-manager", "product-researcher", "content-strategist"]
   }
 ];
 
 const allowedMemberTypes = ["required", "suggested", "custom"];
 
-let memberRowsState = memberCatalog.map((m) => ({
+let memberRowsState = memberCatalog.filter((m) => m.type === "required").map((m) => ({
   id: m.id,
   name: m.name,
   description: m.description,
@@ -131,7 +137,7 @@ function safePresetList(payload) {
   }
 
   const valid = payload.presets.filter((x) =>
-    x && x.id && x.label && x.squadName && x.ownerRole && x.focus && x.accounts && x.tone
+    x && x.id && x.label && x.squadName && x.ownerRole && x.focus && x.accounts && x.tone && Array.isArray(x.defaultMembers)
   );
 
   return valid.length ? valid : builtinPresets;
@@ -162,6 +168,22 @@ function renderPresetOptions(presets) {
   }
 }
 
+function renderCatalogOptions() {
+  catalogMemberSelect.innerHTML = '<option value="">Add a catalog role...</option>';
+  const selectedIds = new Set(memberRowsState.map((member) => member.id));
+
+  for (const member of memberCatalog) {
+    if (selectedIds.has(member.id)) {
+      continue;
+    }
+
+    const option = document.createElement("option");
+    option.value = member.id;
+    option.textContent = `${member.name} - ${member.description}`;
+    catalogMemberSelect.appendChild(option);
+  }
+}
+
 function applyPreset(preset) {
   if (!preset) {
     return;
@@ -172,6 +194,18 @@ function applyPreset(preset) {
   form.elements.focus.value = preset.focus;
   form.elements.accounts.value = preset.accounts;
   form.elements.tone.value = preset.tone;
+  const defaultMemberIds = new Set(["scribe", ...preset.defaultMembers]);
+  memberRowsState = memberCatalog
+    .filter((member) => defaultMemberIds.has(member.id))
+    .map((member) => ({
+      id: member.id,
+      name: member.name,
+      description: member.description,
+      type: member.type
+    }));
+  invalidMemberReasons = new Map();
+  renderMemberRows();
+  renderCatalogOptions();
 }
 
 function confirmRemoval(row) {
@@ -369,6 +403,7 @@ function renderMemberRows() {
       memberRowsState = memberRowsState.filter((x) => x.id !== row.id);
       invalidMemberReasons.delete(row.id);
       renderMemberRows();
+      renderCatalogOptions();
       syncValidationMessageFromState();
       applyValidationUiState();
       refreshPromptPreview();
@@ -655,8 +690,23 @@ addMemberButton.addEventListener("click", () => {
   newMemberName.value = "";
   newMemberDescription.value = "";
   renderMemberRows();
+  renderCatalogOptions();
   syncValidationMessageFromState();
   applyValidationUiState();
+  refreshPromptPreview();
+});
+
+addCatalogMemberButton.addEventListener("click", () => {
+  const selectedMember = memberCatalog.find((member) => member.id === catalogMemberSelect.value);
+  if (!selectedMember) {
+    alert("Choose a catalog role first.");
+    return;
+  }
+
+  memberRowsState.push({ ...selectedMember });
+  catalogMemberSelect.value = "";
+  renderMemberRows();
+  renderCatalogOptions();
   refreshPromptPreview();
 });
 
@@ -669,6 +719,7 @@ async function initializePresets() {
   }
 
   renderMemberRows();
+  renderCatalogOptions();
   refreshPromptPreview();
 }
 

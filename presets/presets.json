@@ -8,7 +8,8 @@
       "ownerRole": "Knowledge Worker",
       "focus": "Meeting action capture, document synthesis, follow-up tracking, and weekly planning",
       "accounts": "Contoso, partner stakeholders",
-      "tone": "Concise, practical, and execution-focused."
+      "tone": "Concise, practical, and execution-focused.",
+      "defaultMembers": ["scrum-master", "content-strategist"]
     },
     {
       "id": "it-support-technician",
@@ -17,7 +18,8 @@
       "ownerRole": "IT Support Technician",
       "focus": "Ticket triage, knowledge lookup, incident follow-up, and escalation drafting",
       "accounts": "Service desk, endpoint operations, platform teams",
-      "tone": "Clear, calm, and diagnostic-first with explicit verification steps."
+      "tone": "Clear, calm, and diagnostic-first with explicit verification steps.",
+      "defaultMembers": ["operations-manager", "product-researcher"]
     },
     {
       "id": "project-manager",
@@ -26,7 +28,8 @@
       "ownerRole": "Project Manager",
       "focus": "Milestone tracking, risk review, stakeholder update drafting, and status rollups",
       "accounts": "Program stakeholders, delivery teams",
-      "tone": "Structured, timeline-aware, and risk-explicit."
+      "tone": "Structured, timeline-aware, and risk-explicit.",
+      "defaultMembers": ["operations-manager", "scrum-master", "strategic-advisor"]
     },
     {
       "id": "sales-account-coordinator",
@@ -35,7 +38,8 @@
       "ownerRole": "Sales and Account Coordinator",
       "focus": "Meeting prep, account notes, follow-up sequencing, and customer-safe message drafting",
       "accounts": "Customer accounts, partner stakeholders",
-      "tone": "Customer-aware, concise, and commercially practical."
+      "tone": "Customer-aware, concise, and commercially practical.",
+      "defaultMembers": ["account-manager", "product-researcher", "content-strategist"]
     }
   ]
 }

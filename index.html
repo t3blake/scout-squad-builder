@@ -93,7 +93,7 @@
 
         <section class="members-section" aria-labelledby="membersTitle">
           <h3 id="membersTitle">Member roles</h3>
-          <p class="hint">Why this matters: role coverage keeps work routed clearly (for example, research vs compliance vs planning) and improves output quality. You can edit default roles, change type, add new roles, and remove any role.</p>
+          <p class="hint">The starter example selects a focused set of roles for this use case. You can edit them, change type, add roles from the catalog, and remove any role.</p>
           <p class="hint members-warning"><strong>Coverage tip:</strong> removing a role is safe for this builder. We show a confirmation when deleting <strong>required</strong> or <strong>suggested</strong> roles because it can narrow routing coverage in the generated squad.</p>
           <p class="hint">System note: <strong>Squad Lead</strong> is generated as the coordinator role outside this table.</p>
           <p id="memberValidationMessage" class="member-validation-message" aria-live="polite"></p>
@@ -114,6 +114,10 @@
           </div>
 
           <div class="add-member">
+            <select id="catalogMemberSelect" aria-label="Catalog role to add">
+              <option value="">Add a catalog role...</option>
+            </select>
+            <button type="button" id="addCatalogMemberButton" class="mini-btn">+ Add catalog role</button>
             <input id="newMemberName" type="text" placeholder="New role name" aria-label="New role name" />
             <input id="newMemberDescription" type="text" placeholder="Responsibility summary" aria-label="New role responsibility" />
             <button type="button" id="addMemberButton" class="mini-btn">+ Add role</button>

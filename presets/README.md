@@ -14,5 +14,6 @@ Add or edit example presets in `presets.json`.
   - `focus`
   - `accounts`
   - `tone`
+  - `defaultMembers` (member ids to prepack for this starter use case)
 
 When you add a new preset object, it automatically appears in the web app dropdown.

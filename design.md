@@ -176,6 +176,7 @@ Core fields:
 8. Custom member list.
 9. Strict mode flag.
 10. Starter persona preset (for role-neutral examples).
+11. Preset-specific starter roster, with optional catalog roles available to add.
 
 ## 13. Security and Privacy
 
@@ -225,6 +226,13 @@ Phase 2:
 1. Template packs (e.g., CSA, TAM, Security specialist).
 2. JSON import/export for reusable org profiles.
 3. Optional preview of generated key files before zip.
+
+### Preset roster principle
+
+Starter presets should include only roles that support the selected use case.
+Personal operating roles or recurring rituals remain optional catalog roles,
+not universal defaults. Each preset declares `defaultMembers` by member id,
+while Scribe remains the universal required role.
 
 ## 17. Open Questions
 
