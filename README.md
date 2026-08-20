@@ -17,16 +17,17 @@ The role/use-case dropdown is driven by `presets/presets.json`.
 - If the JSON file cannot be loaded (for example restrictive local file mode),
   the app falls back to built-in defaults so generation still works.
 
-## Run locally
+## Use the app
 
-Open `index.html` in a browser.
+Open the published app: [Scout Squad Builder](https://t3blake.github.io/scout-squad-builder/)
+
+For local development or offline use, open `index.html` in a browser.
 
 ## Deploy to GitHub Pages
 
-1. Create a new GitHub repo.
-2. Push these files to the default branch.
-3. In GitHub repo settings, enable Pages from `main` branch root.
-4. Open the published URL and use the form.
+1. Push these files to the `main` branch.
+2. Enable Pages from the `main` branch root if it is not already enabled.
+3. Open the [published app](https://t3blake.github.io/scout-squad-builder/) and use the form.
 
 ## Usage Analytics Retention
 
