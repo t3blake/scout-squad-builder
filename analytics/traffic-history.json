@@ -240,6 +240,22 @@
       },
       "topReferrers": [],
       "topPaths": []
+    },
+    {
+      "date": "2026-08-21",
+      "capturedAt": "2026-08-21T07:07:55.762Z",
+      "views": {
+        "count": 0,
+        "uniques": 0,
+        "views": []
+      },
+      "clones": {
+        "count": 0,
+        "uniques": 0,
+        "clones": []
+      },
+      "topReferrers": [],
+      "topPaths": []
     }
   ]
 }
