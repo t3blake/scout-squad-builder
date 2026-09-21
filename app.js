@@ -498,8 +498,8 @@ function buildFiles(values) {
   };
 
   const scribeDirective = hasScribe
-    ? "- Trigger Scribe closeout with run receipt after each dispatched run."
-    : "- Run closeout and verification explicitly in each response (Scribe removed).";
+    ? "- Trigger Scribe closeout with a revision-bound run receipt after each dispatched run. Routine logging may run in the background, but verify its read-back before claiming closeout is complete."
+    : "- Record closeout yourself after each dispatched run, including the reviewed revision and any verification limits; no Scribe is required.";
 
   const skillName = normalizedSkillName(values.skillName);
   const slashSkill = `/${skillName}`;
@@ -515,11 +515,23 @@ TEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>
 
 Core directives:
 - Read \${TEAM_ROOT}\\.squad\\context.md first for package briefing and source-of-truth mapping.
-- Route work to the best specialist(s) from \${TEAM_ROOT}\\.squad\\team.md.
-- Enforce evidence tiers and verify-before-claim from \${TEAM_ROOT}\\.squad\\rules.md.
+- Read \${TEAM_ROOT}\\.squad\\rules.md and apply its answer-preservation, evidence, approval and review standards.
+- Route substantive work to the best available specialist(s) from \${TEAM_ROOT}\\.squad\\team.md using real agent/tool calls, not simulated member perspectives. Disclose unavailable capabilities instead of inventing a dispatch or review.
+- For simple questions already answerable from loaded context, respond directly without a full fan-out. Scale review to the stakes and use only relevant members.
 - Treat systems-of-record actions as draft-only unless user explicitly performs final submit.
-- If required context is missing or instructions conflict, ask one concise clarifying question before dispatching.
-- For multi-domain requests, fan out in parallel and return one concise synthesis.
+- Ask one concise clarifying question when a missing fact or conflict would materially change the answer or authorized scope. Otherwise state necessary assumptions and continue supported work.
+- For multi-domain requests, fan out independent work in parallel and return one concise synthesis.
+- Preserve the user's original request unchanged in every substantive dispatch. Put the following concise contract before role or recovery context, then include the original request and the member's specific assignment. Derive the contract from the request; do not substitute a different task.
+
+ARTIFACT: exact requested output
+FORMAT: requested response or file format
+SCOPE: included work and explicit exclusions
+AUDIENCE: intended user or recipient
+DONE-WHEN: original questions answered at the requested depth, with specific answers or clearly identified evidence gaps
+
+- Keep routine revisions with their original author and arrange independent re-review under the shared rules. Never treat a removed answer as successful review.
+- Check usefulness against the original request, not only this contract. Recheck affected answers on the finished revision after material changes; earlier reviews do not approve later edits.
+- Report factual support, format, usefulness and sharing authorization separately. A useful draft is not permission to send.
 ${scribeDirective}
 `;
 
@@ -535,21 +547,51 @@ ${scribeDirective}
 
   const workingContract = `## Working contract\n\n- Objective: support ${values.ownerRole || "the owner's role"} across ${values.focus || "the selected focus areas"}.\n- Intended value: produce a concise, actionable response that advances the user's work.\n- Scope: use the selected members and routing map; do not invent missing context.\n- Evidence: distinguish sourced facts, direct observations, and hypotheses; verify completion independently.\n- Done means: the response is useful for the stated focus, evidence-aware, and clear about any approval or follow-up needed.\n- Review intensity: scale review to the stakes; routine work gets a light pass, higher-impact or outward-facing work gets deeper review.\n\n`;
 
-  const rulesMd = `# Shared Operating Rules\n\n${workingContract}1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis.\n2. Verify-before-claim: never report completion without independent read-back verification.\n3. Value gate: usefulness is a separate requirement from source safety; shape the response around the user's intended outcome.\n4. Review gate: distinguish source-safe, useful, and ready-to-share judgments; do not let review erase the central recommendation.\n5. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission.\n6. Any durable team behavior change must be captured in decisions ledger.\n7. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}\n`;
+  const rulesMd = `# Shared Operating Rules
+
+${workingContract}1. Evidence tiers on factual claims: official docs, internal info, field observation, unverified hypothesis. Internal information is not automatically approved for external use.
+2. Verify-before-claim: never report completion without independent read-back verification.
+3. Approval boundaries: systems-of-record entries are draft/stage only; user performs final submission. Before sending or sharing externally, show the exact content and recipients and obtain explicit approval. Drafting does not authorize sending.
+4. Any durable team behavior change must be captured in the decisions ledger; distinguish approved policy from a proposal.
+5. Every dispatched run requires closeout and a run receipt${hasScribe ? " (Scribe preferred)." : "."}
+
+## Preserve the requested answer
+
+- The original request is the source of truth. An agent-authored brief or contract must not replace, narrow or reframe it. Preserve the requested artifact, format, scope, audience and depth unless the user changes them.
+- Identify each original question and where the output answers it. Keep supported steps, values, conditions and examples. Related topics, headings and polished formatting are not substitutes for an answer.
+- Distinguish product facts, scoped observations, professional recommendations with rationale and assumptions, and genuine unknowns. Do not turn a precise supported answer into a vague warning because a nearby fact is unknown, or present a recommendation as observed customer practice.
+- Internal review bookkeeping belongs in working notes. Deliverables retain readable sources and material limitations beside the affected claims. Include governance detail when it answers the request, not simply because the team uses it.
+
+## Targeted corrections and revision ownership
+
+- A reviewer identifies the exact claim or passage, the evidence or boundary at issue, and the smallest correction that resolves it. Unsupported or confidential content must still be corrected or removed.
+- Routine repairs stay with the original author and require independent re-review of the affected work. Fixing one's work is not approving one's work. Reassign only for an actual approval-boundary violation, fabricated evidence, or deliberate/repeated bypass; explain the reason to the user.
+- If a correction removes a required answer, flag the gap to the author for targeted research or an explicit evidence-gap answer. Withhold a usefulness pass while the requested answer is missing; do not silently lower the requirement.
+- If the same blocking issue remains after one focused repair and re-review, report it and the smallest needed user decision rather than cycling authors or adding review rounds.
+
+## Proportional review on the final revision
+
+- Choose relevant available members by responsibility, not a mandatory roster. For work warranting independent review, if no independent reviewer is available, disclose that limit, self-check the draft and request user review; never claim independent approval. Simple direct answers do not require a full-team ceremony or user sign-off.
+- For substantial deliverables, check one representative answer against the requested purpose before scaling unless the user asked for a full draft immediately. Reduce volume, not the requested format, scope or audience.
+- Check usefulness against the original questions, not just the generated contract or the author's coverage claims. Recheck affected answers and verdicts after material changes, using the actual finished revision.
+- Record applicable results separately: Source-safe (supported claims and explicit gaps); Format-valid (opened/rendered in the intended format); Useful (answers the actual request without major rewriting); Approved to share (explicit authorization for the intended action). A factual or format pass does not establish usefulness. Draft work can be finished without permission to share.
+- Bind reviews to the artifact path and revision identifier or hash. A review of an earlier draft does not approve a changed artifact. An incomplete or unrendered check remains unverified, not a pass.
+- Keep receipts concise. Mark pending work interim/incomplete and update it after required checks. Distinguish artifact readiness from logging/closeout; do not claim evidence writes are complete before their read-back.
+`;
 
   const routingLines = selected
     .map((m) => `- ${m.name} (${m.type}): ${m.description}`)
     .join("\n");
 
-  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests.\n\n## Member map\n${routingLines}\n\n## Quality routing\n\nFor substantial deliverables, align on audience, intended outcome, and definition of done before drafting. Include evidence review when factual claims matter and approval review when content leaves the user's workspace.\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present.\n`;
+  const routingMd = `# Routing\n\nUse Squad Lead for ambiguous or multi-domain requests. Simple direct questions can stay with the requested member.\n\n## Member map\n${routingLines}\n\nSelect an author and, when warranted, an independent reviewer from available members whose responsibilities fit the request. Use the shared rules for answer preservation and targeted repairs; do not invent missing members or require a fixed roster. If independent review is unavailable, disclose the limit and request user review.\n\nWhen customer-facing, include compliance review when a Compliance Officer role is present. Keep factual support, usefulness and sharing permission separate; compliance is not a substitute for answering the question.\n`;
 
   const contextMd = `# Context Contract\n\nThis file is the fast-start briefing for this generated squad package.\n\n## Source of truth\n\n- Canonical runtime rules: .squad/rules.md\n- Member definitions and role intent: .squad/team.md\n- Routing guidance: .squad/routing.md\n- Coordinator behavior: .github/agents/squad.agent.md\n- Durable decisions: .squad/decisions.md\n\n## Package profile\n\n- Squad name: ${values.squadName}\n- Owner role: ${values.ownerRole}\n- Focus: ${values.focus}\n- Key accounts: ${accounts.length ? accounts.join(", ") : "n/a"}\n- Scribe present: ${hasScribe ? "yes" : "no"}\n\n## Member summary\n\n${memberSummaryLines}\n\n## Operating notes\n\n- This file is a briefing index, not a replacement for the source-of-truth files above.\n- If instructions conflict, follow source-of-truth files in the listed order and ask one concise clarification question when needed.\n`;
 
-  const skillSpecMd = `# ${slashSkill} Skill Wrapper Spec\n\n## Name\n\n${slashSkill}\n\n## Purpose\n\nLoad this squad context from TEAM_ROOT and route work through Squad Lead for one consolidated response.\n\n## Required sources\n\n- \${TEAM_ROOT}\\manifest.json\n- \${TEAM_ROOT}\\.github\\agents\\squad.agent.md\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\team.md\n- \${TEAM_ROOT}\\.squad\\routing.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n\n## Behavior\n\n1. Load required sources from TEAM_ROOT.\n2. Route the request through Squad Lead.\n3. Return one consolidated response.\n4. For conflicts or missing context, ask one concise clarification question.\n\n## Collision policy\n\nIf ${slashSkill} already exists, ask before overwrite.\n\n## Post-install smoke test\n\n- Confirm required sources exist under TEAM_ROOT.\n- Confirm no <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders remain.\n- Confirm ${slashSkill} resolves to this wrapper and returns a harmless routing test response.\n`;
+  const skillSpecMd = `# ${slashSkill} Skill Wrapper Spec\n\n## Name\n\n${slashSkill}\n\n## Purpose\n\nLoad this squad context from TEAM_ROOT and route work through Squad Lead for one consolidated response.\n\n## Required sources\n\n- \${TEAM_ROOT}\\manifest.json\n- \${TEAM_ROOT}\\.github\\agents\\squad.agent.md\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\team.md\n- \${TEAM_ROOT}\\.squad\\routing.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n\n## Behavior\n\n1. Load the latest required sources from TEAM_ROOT on each invocation.\n2. Pass the original request unchanged to Squad Lead; follow its contract, real-dispatch and proportional-review instructions.\n3. Return one consolidated response that answers the original questions, with material gaps and review limits stated plainly.\n4. Ask one concise clarification when missing context or conflicts materially change the answer or authorized scope; otherwise state necessary assumptions and proceed.\n\n## Collision policy\n\nIf ${slashSkill} already exists, ask before overwrite.\n\n## Post-install smoke test\n\n- Confirm required sources exist under TEAM_ROOT.\n- Confirm no <SET_TEAM_ROOT_TO_LOCAL_FOLDER> placeholders remain.\n- Confirm ${slashSkill} resolves to this wrapper and returns a harmless routing test response.\n`;
 
   const decisionsMd = `# Decisions Ledger\n\n## ${new Date().toISOString().slice(0, 10)} - Initial scaffold\n\n- Generated from Scout Squad Builder.\n${ownerName ? `- Owner: ${ownerName}.\n` : ""}- Focus: ${values.focus}.\n`;
 
-  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n### Official documentation\n\n- https://learn.microsoft.com/en-us/microsoft-scout/\n- https://learn.microsoft.com/en-us/microsoft-scout/overview\n\n### Community and ecosystem references\n\n- https://devblogs.microsoft.com/agent-framework/building-agent-teams-with-agent-framework-github-copilot-cli-and-squad/\n- https://github.blog/ai-and-ml/github-copilot/how-squad-runs-coordinated-ai-agents-inside-your-repository/\n- https://github.com/bradygaster/squad\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. In the install prompt below, edit TEAM_ROOT to the folder where you extracted the zip.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
+  const readme = `# ${values.squadName}\n\nGenerated squad package${ownerName ? ` for ${ownerName}` : ""}.\n\nThis package was generated by a community tool. It is not an official Microsoft product and is not affiliated with or endorsed by Microsoft.\n\nFor canonical platform guidance, validate against official documentation.\n\n## Official docs\n\n### Official documentation\n\n- https://learn.microsoft.com/en-us/microsoft-scout/\n- https://learn.microsoft.com/en-us/microsoft-scout/overview\n\n### Community and ecosystem references\n\n- https://devblogs.microsoft.com/agent-framework/building-agent-teams-with-agent-framework-github-copilot-cli-and-squad/\n- https://github.blog/ai-and-ml/github-copilot/how-squad-runs-coordinated-ai-agents-inside-your-repository/\n- https://github.com/bradygaster/squad\n\n## Working style\n\nThe generated instructions preserve the original questions and supported specifics, keep routine repairs with their author, and review usefulness separately from factual support and sharing permission. Review scales to the available team and the stakes. These are project conventions and do not guarantee model behavior.\n\nFor a behavior check, use a fresh Scout conversation with a realistic original request, not a suggested answer outline. Compare the final response with that request before judging polish; distinguish content quality from permission to send. Existing squads do not update automatically: review regenerated files and approve overwrites before replacing a customized installation.\n\n## Quick use in Scout\n\n1. Extract this zip to a local folder.\n2. In the install prompt below, edit TEAM_ROOT to the folder where you extracted the zip.\n3. In Scout, use this prompt:\n\n\`\`\`text\n${installPromptText("C:\\\\Path\\\\To\\\\This\\\\Folder", values.skillName)}\n\`\`\`\n`;
 
   const files = {
     "manifest.json": JSON.stringify(manifest, null, 2),
@@ -559,14 +601,14 @@ ${scribeDirective}
     ".squad/team.md": teamMd,
     ".squad/rules.md": rulesMd,
     ".squad/routing.md": routingMd,
-    ".squad/ceremonies.md": "# Ceremonies\n\n- Weekly Focus Review\n- Pre-send Compliance Check\n- Post-work Verification Sweep\n",
+    ".squad/ceremonies.md": "# Ceremonies\n\nUse these as proportional checkpoints, not mandatory extra meetings or full-team reviews for every answer.\n\n- Weekly Focus Review: when useful, review commitments, priorities and decisions.\n- Pre-send Compliance Check: before an external action, verify evidence and exact-content/recipient approval; systems-of-record submission stays with the user.\n- Post-work Verification Sweep: check the finished revision against the original request using the separate results in rules.md. After material edits, recheck the affected answers; retain the author for routine repairs. Record actual review limits and closeout state.\n",
     ".squad/decisions.md": decisionsMd,
     ".squad/decisions/inbox/.gitkeep": "",
     ".squad/log/.gitkeep": "",
     ".squad/orchestration-log/.gitkeep": "",
     ".squad/run-receipts/.gitkeep": "",
     ".squad/templates/decision-inbox-template.md": "### <timestamp>: <title>\n**By:** <member>\n**What:** <decision>\n**Why:** <rationale>\n**Approval:** <approved|proposed>\n",
-    ".squad/templates/run-receipt-template.md": "**Timestamp:** <UTC>\n**Request:** <summary>\n**Members:** <list>\n**Status:** <completed|incomplete>\n**Verification:** <verified|partial|unverified>\n",
+    ".squad/templates/run-receipt-template.md": "**Timestamp:** <UTC>\n**Request:** <original request reference and brief summary>\n**Members:** <actual dispatches and purpose>\n**Status:** <interim|completed|incomplete>\n**Reviewed revision:** <artifact path and revision or hash>\n**Answer coverage:** <original questions answered and explicit gaps>\n**Review results:** <source-safe; format-valid; useful; approved to share; or not checked/not applicable>\n**Verification:** <verified|partial|unverified; evidence pointers and limits>\n**Closeout:** <read-back completed or remaining work>\n",
     [`skills/${skillName}.md`]: skillSpecMd,
     ".gitattributes": ".squad/decisions.md merge=union\n.squad/agents/*/history.md merge=union\n.squad/agents/compliance-officer/audit-trail.md merge=union\n.squad/log/** merge=union\n.squad/orchestration-log/** merge=union\n.squad/run-receipts/** merge=union\n"
   };
@@ -575,15 +617,16 @@ ${scribeDirective}
     const memberName = member.name;
     const id = member.id;
 
-    files[`.squad/agents/${id}/charter.md`] = `# ${memberName}\n\n## Role\n${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\n## Guardrails\n- Follow .squad/rules.md\n- Stay in role\n- Keep outputs concise and verifiable\n`;
+    files[`.squad/agents/${id}/charter.md`] = `# ${memberName}\n\n## Role\n${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n${member.description}\n\n## Guardrails\n- Read and follow .squad/rules.md, including answer-preservation and revision ownership.\n- Stay in role and preserve the original request and deliverable contract.\n- Keep outputs concise, specific and useful; state genuine gaps without replacing supported answers with generic caveats.\n- When reviewing, identify the exact defect and minimal correction; do not claim an independent review of your own work.\n`;
 
     files[`.squad/agents/${id}/history.md`] = `# ${memberName} - History\n\n## Core Context\n\n${ownerName ? `- Owner: ${ownerName}\n` : ""}- Focus: ${values.focus}\n`;
 
     if (id !== "scribe") {
-      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nTEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>\n\nBefore responding, read:\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\charter.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\history.md\n\nIf a durable team decision emerges, write a drop file to \${TEAM_ROOT}\\.squad\\decisions\\inbox\\ and notify the user.\n`;
+      files[`standalone-agents/${id}.agent.md`] = `---\nname: ${memberName}\ndescription: "${memberName} for ${values.squadName}."\n---\n\nYou are ${memberName}${ownerName ? ` for ${ownerName}` : ""}.\n\nTEAM_ROOT = <SET_TEAM_ROOT_TO_LOCAL_FOLDER>\n\nBefore responding, read:\n- \${TEAM_ROOT}\\.squad\\context.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\charter.md\n- \${TEAM_ROOT}\\.squad\\rules.md\n- \${TEAM_ROOT}\\.squad\\decisions.md\n- \${TEAM_ROOT}\\.squad\\agents\\${id}\\history.md\n\nApply the shared answer-preservation rules to direct requests as well as coordinated work. Simple direct answers do not require routing through the whole squad. Use the shared rules' fallback when independent review is unavailable.\n\nIf a durable team decision emerges, write a drop file to \${TEAM_ROOT}\\.squad\\decisions\\inbox\\ and notify the user.\n`;
     }
   }
 
+  return { files, squadSlug };
 }
 
 form.addEventListener("input", refreshPromptPreview);

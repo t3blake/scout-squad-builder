@@ -17,7 +17,7 @@ We need a simple web app that:
 ## 2. Product Goals
 
 1. Fast onboarding: first-time user can generate and import a squad package in under 10 minutes.
-2. Strong defaults: generated output includes compliance-first guardrails by default.
+2. Strong defaults: generated output preserves useful answers while enforcing evidence and approval boundaries.
 3. Flexibility: users can remove/replace default squad content with their own.
 4. Accessibility: UI meets practical accessibility expectations (keyboard support, visible focus, readable contrast, semantic structure).
 5. Privacy: no user input leaves the browser.
@@ -108,6 +108,38 @@ Generated squad package must include:
 5. Durable decision capture path (`.squad/decisions/inbox/` + merged ledger).
 6. Run receipts and closeout scaffolding.
 7. Reference section in generated README that points users to official docs for canonical behavior and latest platform updates.
+
+### 8.1 Answer-preserving workflow
+
+Generated instructions must work for any selected roster, including custom
+members and teams without dedicated reviewers or a Scribe:
+
+1. Preserve the original request and a concise deliverable contract (artifact,
+	format, scope, audience, done-when) in substantive dispatches. Derive the
+	contract from the request; do not let an agent-authored brief replace it.
+2. Keep supported steps, values, conditions and examples. Separate product
+	facts, scoped observations, recommendations with assumptions, and unknowns.
+	Put internal review bookkeeping in working notes, not in the deliverable.
+3. Review findings identify a specific defect and minimal correction. Routine
+	repairs stay with the original author and receive independent re-review;
+	reassignment is reserved for trust or approval-boundary violations.
+4. Judge relevance against the original questions, not just headings or the
+	generated contract. Check one representative answer before scaling a large
+	artifact, then recheck affected answers after material changes.
+5. Distinguish factual support, format, usefulness and permission to share.
+	A factual or render pass is not proof of usefulness or authorization to send.
+6. Scale work to stakes. Use only relevant available members; do not add a
+	mandatory roster, review ceremony or full fan-out for routine questions.
+	If no independent reviewer is available, disclose that limit and request
+	user review without claiming independent approval.
+7. Bind reviews and closeout to the actual revision and distinguish interim
+	evidence from completion. Scribe availability must not determine whether
+	a team can preserve answers or perform accurate closeout.
+
+Regression tests inspect generated instructions and downloaded ZIP contents
+for default and custom rosters. These tests validate generator contracts, not
+live model compliance. A fresh Scout run with a realistic uncoached request
+is the behavior check; instruction text cannot guarantee every runtime outcome.
 
 ## 9. Flexibility Model
 
@@ -213,6 +245,19 @@ Core fields:
 	generated from existing inputs instead of adding process fields to the form.
 9. Usefulness should be an explicit quality gate alongside evidence and
 	verification, with review scaled to the stakes.
+
+### 15.3 Answer-preservation lessons
+
+Review can leave an artifact source-supported but too vague or irrelevant to
+use. Carry original questions through authoring and final review; preserve
+precise supported answers while repairing only the actual defect. Keep normal
+revisions with their author rather than imposing automatic author lockout.
+
+Deliberately unchanged: evidence standards, approval boundaries, user-selected
+roles, local generation and install collision prompts. Do not export private
+account history, customer examples, personal paths or a particular team's
+roster as part of these general defaults. Existing installed squads do not
+update automatically; new packages still require review before overwriting.
 
 ## 16. Phased Plan
 

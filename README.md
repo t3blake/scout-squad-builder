@@ -8,6 +8,24 @@ Many users can use the same squad pattern, but each needs small customizations
 (name, role focus, accounts, members, tone). This app captures those inputs and
 produces a zip containing squad markdown/json files.
 
+## Answer-preserving defaults
+
+Generated squads carry the original request through dispatch, authoring and review.
+Supported steps, values and examples stay in the answer; facts, recommendations and
+unknowns are distinguished instead of being reduced to generic caveats. Routine
+repairs stay with the author, with independent re-review when warranted. Usefulness
+is checked on the final revision separately from evidence, format and permission to share.
+
+Routing scales to the request and the selected members, including custom or minimal
+rosters. Simple questions do not trigger a full-team ceremony. Missing independent
+review is disclosed when needed, not simulated. Evidence standards, human submission
+boundaries and explicit approval for external sharing remain in place.
+
+These defaults apply to newly generated packages. Existing installations are not
+automatically updated; compare regenerated files with your customizations and approve
+any overwrite. The canonical requirements and deliberately unchanged choices are in
+[design.md](design.md).
+
 ## Example presets (modular)
 
 The role/use-case dropdown is driven by `presets/presets.json`.
@@ -22,6 +40,15 @@ The role/use-case dropdown is driven by `presets/presets.json`.
 Open the published app: [Scout Squad Builder](https://t3blake.github.io/scout-squad-builder/)
 
 For local development or offline use, open `index.html` in a browser.
+
+## Verification
+
+Run `npm ci`, then `npx playwright install chromium` and `npm test`.
+The tests check generated instructions and actual downloaded ZIP contents for default
+and custom rosters, alongside the existing UI checks. They do not guarantee model behavior.
+Test a new squad in a fresh Scout conversation using a realistic request without a
+coached answer outline. Judge the final response against the original questions,
+not only its headings, review labels or formatting.
 
 ## Deploy to GitHub Pages
 
